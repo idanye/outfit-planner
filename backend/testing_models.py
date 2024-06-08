@@ -5,7 +5,6 @@ from io import BytesIO
 import shutil
 import os
 
-
 # Local file paths
 model_image_path = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\model_image.jpg"
 garment_image_path = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\garment_image.jpeg"
@@ -17,7 +16,8 @@ client = Client("https://levihsu-ootdiffusion.hf.space/--replicas/iif7h/")
 result = client.predict(
     file(model_image_path),  # Use gradio_client.file() to specify the file path
     file(garment_image_path),  # Use gradio_client.file() to specify the file path
-    "Lower-body",	# Literal['Upper-body', 'Lower-body', 'Dress']  in 'Garment category (important option!!!)' Dropdown component
+    "Lower-body",  # Literal['Upper-body', 'Lower-body', 'Dress']  in 'Garment category (important option!!!)'
+    # Dropdown component
     1,  # float (numeric value between 1 and 4) in 'Images' Slider component
     20,  # float (numeric value between 20 and 40) in 'Steps' Slider component
     1,  # float (numeric value between 1.0 and 5.0) in 'Guidance scale' Slider component
@@ -37,8 +37,3 @@ print(result)
 
 # # Move the result image to the desired directory
 # shutil.move(result_image_path, new_result_image_path)
-
-
-
-
-
