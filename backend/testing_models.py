@@ -7,8 +7,8 @@ import os
 
 
 # Local file paths
-model_image_path = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\model_image.jpg"
-garment_image_path = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\garment_image.jpeg"
+model_image_path = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\modelsImages\\model_image2.png"
+garment_image_path = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\garmentsImages\\garment_image.jpeg"
 
 # Initialize the Gradio client
 client = Client("https://levihsu-ootdiffusion.hf.space/--replicas/iif7h/")
