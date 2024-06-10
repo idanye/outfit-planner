@@ -1,0 +1,122 @@
+import os
+import re
+from datetime import datetime
+
+import requests
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from base_scraper import BaseScraper
+
+
+class ZaraScraper(BaseScraper):
+    def __init__(self):
+        super().__init__()
+        # Setup Selenium WebDriver options
+        # firefox_options = Options()
+        # firefox_options.add_argument("--headless")
+        self.driver = webdriver.Firefox()
+
+    def handle_policy_text(self):
+        try:
+            # Wait for the policy text to appear
+            policy_element = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "button.onetrust-close-btn-handler"))
+            )
+            # Click the accept button
+            policy_element.click()
+            print("Policy text handled.")
+        except Exception as e:
+            print(f"Policy text not found or could not be handled: {e}")
+
+    def scrape_images(self, url, base_directory):
+        try:
+            self.driver.get(url)
+            # Add a print to indicate the URL has been opened
+            print(f"Opened URL: {url}")
+
+            # Handle policy text if it appears
+            self.handle_policy_text()
+
+            # Wait for the images to load
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_all_elements_located(
+                    (By.CSS_SELECTOR, "button.product-detail-images__image-action-wrapper picture"))
+            )
+            print("Located image elements.")
+
+            # Find all picture elements
+            picture_elements = self.driver.find_elements(By.CSS_SELECTOR,
+                                                         "button.product-detail-images__image-action-wrapper picture")
+            print(f"Found {len(picture_elements)} images on the page")
+
+            image_urls = []
+            for picture in picture_elements:
+                # Get the highest resolution URL from the srcset attribute
+                sources = picture.find_elements(By.TAG_NAME, 'source')
+                high_res_url = None
+                if sources:
+                    max_width = 0
+                    for source in sources:
+                        srcset = source.get_attribute('srcset')
+                        urls = srcset.split(',')
+                        for url in urls:
+                            url = url.strip()
+                            match = re.search(r'(\d+)w', url)
+                            if match:
+                                width = int(match.group(1))
+                                if width > max_width:
+                                    max_width = width
+                                    high_res_url = url.split(' ')[0]
+
+                if not high_res_url or 'transparent-background' in high_res_url:
+                    # Fallback to the img src attribute if high_res_url is not found or is a placeholder
+                    img = picture.find_element(By.TAG_NAME, 'img')
+                    img_src = img.get_attribute('src')
+                    if 'transparent-background' not in img_src:
+                        high_res_url = img_src.split('?')[0]
+
+                if high_res_url and 'transparent-background' not in high_res_url:
+                    image_urls.append(high_res_url)
+
+            # Create a unique directory for each run
+            timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M')
+            save_directory = os.path.join(base_directory, f'zara_images_{timestamp}')
+            print(f"Downloading {len(image_urls)} images to {save_directory}")
+
+            if not os.path.exists(save_directory):
+                os.makedirs(save_directory)
+
+            for idx, img_url in enumerate(image_urls):
+                filename = os.path.join(save_directory, f"image_{idx}.jpg")
+                self.download_image(img_url, filename)
+
+        except Exception as e:
+            print(f"Exception occurred: {e}")
+            # print("Page source:")
+            # print(self.driver.page_source)
+
+        finally:
+            # Close the driver
+            self.driver.quit()
+
+    def download_image(self, url, save_path):
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            with open(save_path, 'wb') as file:
+                for chunk in response.iter_content(1024):
+                    file.write(chunk)
+        else:
+            print(f"Failed to download image from {url}")
+
+
+# Example usage
+if __name__ == "__main__":
+    # chromedriver_path = "C:\\Users\\idany\\Downloads\\chromedriver-win64\\chromedriver.exe"  # Replace with your
+    scraper = ZaraScraper()
+    zara_url = 'https://www.zara.com/il/en/linen-blend-shirt-with-buckle-p04764110.html?v1=365948358&v2=2352910'
+    base_directory = './scraped_images'
+    scraper.scrape_images(zara_url, base_directory)
