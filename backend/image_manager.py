@@ -5,8 +5,8 @@ from io import BytesIO
 import shutil
 import os
 
+
 class ImageManager:
-    
     # Move the result image to the resultImages folder
     @staticmethod
     def move_image(original_img_path, counter):

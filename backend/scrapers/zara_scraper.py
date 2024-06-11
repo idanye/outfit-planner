@@ -53,6 +53,11 @@ class ZaraScraper(BaseScraper):
                                                          "button.product-detail-images__image-action-wrapper picture")
             print(f"Found {len(picture_elements)} images on the page")
 
+            # Find the item's name
+            item_name_element = self.driver.find_element(By.CSS_SELECTOR, "h1.product-detail-info__header-name")
+            item_name = item_name_element.text
+            print(f"Item's name: {item_name}")
+
             image_urls = []
             for picture in picture_elements:
                 # Get the highest resolution URL from the srcset attribute
@@ -83,7 +88,7 @@ class ZaraScraper(BaseScraper):
                     image_urls.append(high_res_url)
 
             # Create a unique directory for each run
-            timestamp = datetime.now().strftime('%Y_%m_%d_%H_%M')
+            timestamp = datetime.now().strftime('%Y_%m_%d-%H_%M')
             save_directory = os.path.join(base_directory, f'zara_images_{timestamp}')
             print(f"Downloading {len(image_urls)} images to {save_directory}")
 
@@ -93,6 +98,10 @@ class ZaraScraper(BaseScraper):
             for idx, img_url in enumerate(image_urls):
                 filename = os.path.join(save_directory, f"image_{idx}.jpg")
                 self.download_image(img_url, filename)
+
+            save_directory = save_directory.replace("./", "")
+            relative_path = "../scrapers/" + save_directory
+            return relative_path, item_name
 
         except Exception as e:
             print(f"Exception occurred: {e}")
@@ -115,8 +124,8 @@ class ZaraScraper(BaseScraper):
 
 # Example usage
 if __name__ == "__main__":
-    # chromedriver_path = "C:\\Users\\idany\\Downloads\\chromedriver-win64\\chromedriver.exe"  # Replace with your
     scraper = ZaraScraper()
-    zara_url = 'https://www.zara.com/il/en/linen-blend-shirt-with-buckle-p04764110.html?v1=365948358&v2=2352910'
+    zara_url = 'https://www.zara.com/il/en/short-gabardine-dress-with-ties-p03515211.html?v1=362609455&v2=2352910'
     base_directory = './scraped_images'
-    scraper.scrape_images(zara_url, base_directory)
+    saved_directory = scraper.scrape_images(zara_url, base_directory)
+    print(f"Saved directory: {saved_directory}")

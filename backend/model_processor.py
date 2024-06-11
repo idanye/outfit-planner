@@ -7,6 +7,8 @@ from image_manager import ImageManager
 
 
 class ModelProcessor:
+    ### Needs to be change to relative path: etc. "./modelsImages/model4.png"
+
     model_image = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\backend\\modelsImages\\model4.png"
     garment_image = "C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner\\backend\\\garmentsImages\\garment7.jpg"
 

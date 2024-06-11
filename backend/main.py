@@ -4,34 +4,30 @@ import uvicorn
 import os
 import shutil
 from scrapers.scraper_factory import ScraperFactory
-from detection.person_detector import PersonDetector
-
+from detection.person_detector import save_first_image_without_person
+from classification.clothes_classifier import ClothesClassifier
 app = FastAPI()
 
 
 def main():
-    zara_url = 'https://www.zara.com/il/en/linen-blend-shirt-with-buckle-p04764110.html?v1=365948358&v2=2352910'
+    zara_url = 'https://www.zara.com/il/en/draped-open-back-dress-p03152334.html?v1=364113503&v2=2352910'
     # hm_url = 'https://www2.hm.com/en_us/productpage.0927047002.html'
 
-    save_directory = './images'
-    result_directory = './no_model_images'
+    base_directory = './scraped_images'
 
     scraper = ScraperFactory.get_scraper(zara_url)
-    person_detector = PersonDetector()
+    saved_directory, item_name = scraper.scrape_images(zara_url, base_directory)
+    print(f"Saved directory: {saved_directory}")
 
-    scraper.scrape_images(zara_url, save_directory)
+    image_path = save_first_image_without_person(saved_directory)
+    print(f"The new location of the image: {image_path}")
 
-    if not os.path.exists(result_directory):
-        os.makedirs(result_directory)
+    # item_name = "COTTON AND MODAL CROP TOP"
+    classifier = ClothesClassifier()
+    category = classifier.classify_item(item_name)
+    print(f"Item '{item_name}' is classified as: {category}")
 
-    for image_file in os.listdir(save_directory):
-        image_path = os.path.join(save_directory, image_file)
-
-        if not person_detector.detect_person_in_image(image_path):
-            print(f"No person detected in {image_file}, saving...")
-            shutil.copy(image_path, os.path.join(result_directory, image_file))
-
-    ModelProcessor.process_image()
+    # ModelProcessor.process_image()
 
 
 if __name__ == "__main__":
