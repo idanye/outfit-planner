@@ -1,4 +1,5 @@
 backend/venv
 /.idea/
 backend/venv1
-
+backend/detection/config
+backend/scrapers/__pycache__
