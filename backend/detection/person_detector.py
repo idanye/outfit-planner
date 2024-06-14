@@ -6,12 +6,21 @@ import os
 
 
 class PersonDetector:
+    # def __init__(self, yolo_weights='config/yolov3.weights', yolo_cfg='config/yolov3.cfg',
+    #              coco_names='config/coco.names'):
+    #     self.yolo_weights = yolo_weights
+    #     self.yolo_cfg = yolo_cfg
+    #     self.coco_names = coco_names
+    #     self.net, self.output_layers, self.classes = self.load_yolo()
+
     def __init__(self, yolo_weights='config/yolov3.weights', yolo_cfg='config/yolov3.cfg',
-                 coco_names='config/coco.names'):
-        self.yolo_weights = yolo_weights
-        self.yolo_cfg = yolo_cfg
-        self.coco_names = coco_names
+                coco_names='config/coco.names'):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        self.yolo_weights = os.path.join(script_dir, yolo_weights)
+        self.yolo_cfg = os.path.join(script_dir, yolo_cfg)
+        self.coco_names = os.path.join(script_dir, coco_names)
         self.net, self.output_layers, self.classes = self.load_yolo()
+
 
     def load_yolo(self):
         # Check if the files exist
@@ -39,6 +48,7 @@ class PersonDetector:
 
         height, width, _ = img.shape
         blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+        
         self.net.setInput(blob)
         outs = self.net.forward(self.output_layers)
 
@@ -71,6 +81,7 @@ def find_first_image_without_person(directory):
     detector = PersonDetector()
     for i in range(0, 12):  # Assuming there won't be more than 12 images
         image_path = os.path.join(directory, f'image_{i}.jpg')
+        print(f"Checking image path: {image_path}")
         print(f"Image path exists: {os.path.exists(image_path)}")
 
         if os.path.exists(image_path):
@@ -92,6 +103,6 @@ def save_first_image_without_person(directory, save_directory="../garmentsImages
 
 # Example usage
 if __name__ == "__main__":
-    directory = "../scrapers/scraped_images\zara_images_2024_06_11-12_18"
+    directory = "../scrapers/scraped_images/zara_images_2024_06_11-12_18"
     image_path = save_first_image_without_person(directory)
     print(f"The new location of the image: {image_path}")

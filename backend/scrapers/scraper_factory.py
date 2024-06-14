@@ -1,4 +1,4 @@
-from zara_scraper import ZaraScraper
+from .zara_scraper import ZaraScraper
 # from hm_scraper import HmScraper
 
 

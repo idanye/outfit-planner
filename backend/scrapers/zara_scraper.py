@@ -1,6 +1,7 @@
 import os
 import re
 from datetime import datetime
+from .base_scraper import BaseScraper
 
 import requests
 from selenium import webdriver
@@ -9,7 +10,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from base_scraper import BaseScraper
 
 
 class ZaraScraper(BaseScraper):
@@ -85,6 +85,7 @@ class ZaraScraper(BaseScraper):
                         high_res_url = img_src.split('?')[0]
 
                 if high_res_url and 'transparent-background' not in high_res_url:
+                    # print(f"Adding image URL: {high_res_url}")
                     image_urls.append(high_res_url)
 
             # Create a unique directory for each run
@@ -100,7 +101,8 @@ class ZaraScraper(BaseScraper):
                 self.download_image(img_url, filename)
 
             save_directory = save_directory.replace("./", "")
-            relative_path = "../scrapers/" + save_directory
+            # relative_path = "../scrapers/" + save_directory
+            relative_path = save_directory
             return relative_path, item_name
 
         except Exception as e:
@@ -112,14 +114,23 @@ class ZaraScraper(BaseScraper):
             # Close the driver
             self.driver.quit()
 
+
     def download_image(self, url, save_path):
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            with open(save_path, 'wb') as file:
-                for chunk in response.iter_content(1024):
-                    file.write(chunk)
-        else:
-            print(f"Failed to download image from {url}")
+        try:
+            response = requests.get(url, stream=True)
+            # print(f"Attempting to download image from {url}")
+            # print(f"Response status code: {response.status_code}")
+
+            if response.status_code == 200:
+                with open(save_path, 'wb') as file:
+                    for chunk in response.iter_content(8192):
+                        file.write(chunk)
+                print("Downloaded image successfully")
+                # print(f"Successfully downloaded image from {url} to {save_path}")
+            else:
+                print(f"Failed to download image from {url}")
+        except Exception as e:
+            print(f"Exception occurred while downloading image from {url}: {e}")
 
 
 # Example usage
