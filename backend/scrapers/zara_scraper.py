@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from base_scraper import BaseScraper
+from .base_scraper import BaseScraper
 
 
 class ZaraScraper(BaseScraper):
