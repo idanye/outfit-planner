@@ -13,11 +13,12 @@ app = FastAPI()
 
 
 def main():
-    zara_url= 'https://www.zara.com/il/en/short-gabardine-dress-with-ties-p03515211.html?v1=362609455&v2=2352910'
+    zara_url ="https://www.zara.com/il/en/satin-midi-dress-with-foil-detail-p02180217.html?v1=368742147&v2=2352823"
+    # zara_url= 'https://www.zara.com/il/en/short-gabardine-dress-with-ties-p03515211.html?v1=362609455&v2=2352910'
     # hm_url = 'https://www2.hm.com/en_us/productpage.0927047002.html'
 
-    # base_directory = './'
-    base_directory = ".\\scrapers\\scraped_images"
+    # base_directory = ".\\backend\\scrapers\\scraped_images" # nofar's path
+    base_directory = ".\\scrapers\\scraped_images"  # Idan's path
     save_directory = ".\\garmentsImages"
 
     scraper = ScraperFactory.get_scraper(zara_url)
@@ -26,6 +27,7 @@ def main():
 
     image_path = save_first_image_without_person(saved_directory, save_directory)
     # image_path = save_first_image_without_person("./scrapers/scraped_images/zara_images_2024_06_14-21_15", save_directory)
+    # image_path = save_first_image_without_person(".\\backend\\scrapers\\scraped_images\\zara_images_2024_06_14-21_15", save_directory) # nofar's path
     print(f"The new location of the image: {image_path}")
 
     # item_name = "COTTON AND MODAL CROP TOP"
