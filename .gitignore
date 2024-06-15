@@ -4,3 +4,4 @@ backend/venv1
 backend/detection/config
 backend/scrapers/__pycache__
 backend/__pycache__
+**/__pycache__/
