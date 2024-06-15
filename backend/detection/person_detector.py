@@ -106,7 +106,7 @@ def save_first_image_without_person(directory, save_directory="../garmentsImages
 
 # Example usage
 if __name__ == "__main__":
-    directory = "../scrapers/scraped_images/zara_images_2024_06_11-12_18"
+    directory = "../scrapers/scraped_images/zara_images_2024_06_14-11_19"
     image_path = save_first_image_without_person(directory)
     print(f"The new location of the image: {image_path}")
     # print(os.chdir('/absolute/path/to/backend'))
