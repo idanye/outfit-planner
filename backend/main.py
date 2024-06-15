@@ -17,13 +17,15 @@ def main():
     # hm_url = 'https://www2.hm.com/en_us/productpage.0927047002.html'
 
     # base_directory = './'
-    base_directory = ".\\backend\\scrapers\\scraped_images"
+    base_directory = ".\\scrapers\\scraped_images"
+    save_directory = ".\\garmentsImages"
 
     scraper = ScraperFactory.get_scraper(zara_url)
     saved_directory, item_name = scraper.scrape_images(zara_url, base_directory)
     print(f"Saved directory: {saved_directory}")
 
-    image_path = save_first_image_without_person(saved_directory)
+    image_path = save_first_image_without_person(saved_directory, save_directory)
+    # image_path = save_first_image_without_person("./scrapers/scraped_images/zara_images_2024_06_14-21_15", save_directory)
     print(f"The new location of the image: {image_path}")
 
     # item_name = "COTTON AND MODAL CROP TOP"
