@@ -11,7 +11,7 @@ app = FastAPI()
 
 
 def main():
-    zara_url = "https://www.zara.com/il/en/cropped-shirt-with-cutwork-embroidery-p03564079.html?v1=365453566&v2=2352910"
+    zara_url = "https://www.zara.com/il/en/animal-print-shorts-p03067424.html?v1=357187445&v2=2352910"
     # zara_url = 'https://www.zara.com/il/en/thin-stripe-oxford-shirt-p08372130.html?v1=364107803&v2=2352910'
     # hm_url = 'https://www2.hm.com/en_us/productpage.0927047002.html'
 

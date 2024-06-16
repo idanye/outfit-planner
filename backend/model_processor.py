@@ -14,8 +14,8 @@ class ModelProcessor:
     def process_image(model_image_path, garment_image_path, category="Lower-body", images=1,
                       steps=25, guidance_scale=2, seed=-1):
         # Initialize the Gradio client
-        client = Client("levihsu/OOTDiffusion", hf_token="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")
-                            # "idany/OOTDiffusion"
+        client = Client("levihsu/OOTDiffusion")
+
         # Make the API call
         result = client.predict(
             file(model_image_path),  # Use gradio_client.file() to specify the file path
