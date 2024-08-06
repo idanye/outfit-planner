@@ -5,25 +5,13 @@ import os
 
 
 class PersonDetector:
-    # def __init__(self, yolo_weights='config/yolov3.weights', yolo_cfg='config/yolov3.cfg',
-    #              coco_names='config/coco.names'):
-    #     self.yolo_weights = yolo_weights
-    #     self.yolo_cfg = yolo_cfg
-    #     self.coco_names = coco_names
-    #     self.net, self.output_layers, self.classes = self.load_yolo()
-
-    def __init__(self, yolo_weights='config/yolov3.weights', yolo_cfg='config/yolov3.cfg',
+    def __init__(self, yolo_weights='config/yolov3-tiny.weights', yolo_cfg='config/yolov3-tiny.cfg',
                  coco_names='config/coco.names'):
-        # self.yolo_weights = yolo_weights
-        # self.yolo_cfg = yolo_cfg
-        # self.coco_names = coco_names
-        # self.net, self.output_layers, self.classes = self.load_yolo()
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.yolo_weights = os.path.join(script_dir, yolo_weights)
         self.yolo_cfg = os.path.join(script_dir, yolo_cfg)
         self.coco_names = os.path.join(script_dir, coco_names)
         self.net, self.output_layers, self.classes = self.load_yolo()
-
 
     def load_yolo(self):
         # Check if the files exist
@@ -51,7 +39,7 @@ class PersonDetector:
 
         height, width, _ = img.shape
         blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
-        
+
         self.net.setInput(blob)
         outs = self.net.forward(self.output_layers)
 
@@ -63,7 +51,7 @@ class PersonDetector:
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
 
-                if confidence > 0.5:
+                if confidence > 0.5:  # Confidence threshold
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
@@ -89,7 +77,11 @@ def find_first_image_without_person(directory):
 
         if os.path.exists(image_path):
             if not detector.detect_person_in_image(image_path):
+                print(f"No person detected in image: {image_path}")
                 return image_path
+            else:
+                print(f"Person detected in image: {image_path}")
+
     return None
 
 
@@ -106,7 +98,10 @@ def save_first_image_without_person(directory, save_directory="../garmentsImages
 
 # Example usage
 if __name__ == "__main__":
-    directory = "../scrapers/scraped_images/zara_images_2024_06_14-11_19"
+    directory = "../scrapers/scraped_images/zara_images_2024_06_16-17_01"
     image_path = save_first_image_without_person(directory)
-    print(f"The new location of the image: {image_path}")
+    if image_path:
+        print(f"The new location of the image: {image_path}")
+    else:
+        print("No image was saved.")
     # print(os.chdir('/absolute/path/to/backend'))
