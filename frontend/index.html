@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Outfit Planner</title>
+  <link rel="stylesheet" href="http://localhost:8000/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Outfit Planner</h1>
+
+    <div class="section" id="item-section">
+      <h2>Item Details</h2>
+      <div id="item-name"></div>
+      <img id="item-image" src="" alt="Item Image" style="max-width: 100%; display: none;" />
+      <button id="show-result-btn" style="display: none;">Show Result</button>
+    </div>
+
+    <div class="section" id="result-section" style="display: none;">
+      <h2>Result</h2>
+      <div id="result" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script src="http://localhost:8000/static/popup.js"></script>
+</body>
+</html>
