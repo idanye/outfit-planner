@@ -5,7 +5,7 @@ import os
 
 
 class PersonDetector:
-    def __init__(self, yolo_weights='config/yolov3-tiny.weights', yolo_cfg='config/yolov3-tiny.cfg',
+    def __init__(self, yolo_weights='config/yolov3.weights', yolo_cfg='config/yolov3.cfg',
                  coco_names='config/coco.names'):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.yolo_weights = os.path.join(script_dir, yolo_weights)

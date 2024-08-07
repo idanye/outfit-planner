@@ -1,13 +1,7 @@
-from fastapi import FastAPI
 from model_processor import ModelProcessor
-import uvicorn
-import os
-import shutil
 from scrapers.scraper_factory import ScraperFactory
 from detection.person_detector import save_first_image_without_person
 from classification.clothes_classifier import ClothesClassifier
-
-app = FastAPI()
 
 
 def main():
@@ -39,4 +33,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # uvicorn.run(app, host="0.0.0.0", port=8000)
