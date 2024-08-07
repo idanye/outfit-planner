@@ -106,7 +106,15 @@ def save_first_image_without_person(directory, save_directory="../garmentsImages
 
 # Example usage
 if __name__ == "__main__":
-    directory = "../scrapers/scraped_images/zara_images_2024_06_14-11_19"
+    # nofar's path:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Navigate up one directory from 'detection' to 'backend'
+    backend_dir = os.path.dirname(script_dir)
+    directory = os.path.join(backend_dir, "scrapers", "scraped_images", "iloveimg-resized")
+    print(f"Absolute directory path: {directory}")
+
+    # idan's path:
+    # directory = "../scrapers/scraped_images/zara_images_2024_06_16-17_01"
+
     image_path = save_first_image_without_person(directory)
     print(f"The new location of the image: {image_path}")
-    # print(os.chdir('/absolute/path/to/backend'))
