@@ -107,8 +107,5 @@ if __name__ == "__main__":
 
     directory = "../scrapers/scraped_images/zara_images_2024_06_16-17_01"
     image_path = save_first_image_without_person(directory)
-    if image_path:
-        print(f"The new location of the image: {image_path}")
-    else:
-        print("No image was saved.")
+    print(f"The new location of the image: {image_path}")
     # print(os.chdir('/absolute/path/to/backend'))
