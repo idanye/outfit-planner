@@ -1,6 +1,8 @@
 from gradio_client import Client, file
 import uuid
+import json
 from PIL import Image
+import requests
 import shutil
 import os
 from image_manager import ImageManager
@@ -56,6 +58,83 @@ class ModelProcessor:
         # Open the moved image
         image = Image.open(new_image_path)
         image.show()
+
+
+    def get_image_evaluation(image_path):
+        # Define the API endpoint and your API key
+        api_endpoint = "https://api.openai.com/v1/chat/completions"
+        api_key = "sk-proj-cQM9UT4EGqws9XBxkXydT3BlbkFJ41c9duQB6DCS1wnZfCsp"
+        with open(image_path, "rb") as image_file:
+            # Send the image to the API for evaluation
+            response = requests.post(api_endpoint, headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "image/png"  # Adjust as needed
+            }, data=image_file.read())
+            
+            # Process the response to get the evaluation score
+            # Assuming the response contains a score in a JSON field called 'score'
+            evaluation = response.json().get('score', 0)
+            return evaluation
+        
+    @staticmethod
+    def find_best_image(directory):
+        best_image = None
+        best_score = float('-inf')
+
+        for filename in os.listdir(directory):
+            if filename.lower().endswith(('png', 'jpg', 'jpeg', 'gif')):
+                image_path = os.path.join(directory, filename)
+                score = get_image_evaluation(image_path)
+                print(f"Image: {filename}, Score: {score}")
+
+                if score > best_score:
+                    best_score = score
+                    best_image = filename
+
+        return best_image
+
+
+        # # Define the headers
+        # headers = {
+        #     "Authorization": f"Bearer {api_key}",
+        #     "Content-Type": f"image/png"  # f"image/{image_format}"
+        # }
+
+        # # Construct the prompt based on user input
+        # prompt = (
+        #     f"Please evaluate the following images: that are the output of a model that dresses a model with the input grament. You need to return the most realistic looking, fits good on the model and look like the origin grament image: {garment_img}, image"
+        # )
+
+        # # Define the data for the request
+        # data = {
+        #     "model": "gpt-4",  # Specify the model you want to use
+        #     "messages": [
+        #         {"role": "system", "content": "You are an helpful evaluator of images."},
+        #         {"role": "user", "content": prompt}
+        #     ]
+        # }
+
+        # # Open the image file in binary mode
+        # with open("path/to/image.file", "rb") as image_file:
+        #     response = requests.post(api_endpoint, headers=headers, data=image_file.read())
+
+        # response = requests.post(api_endpoint, headers=headers, data=json.dumps(data))
+            
+        # if response.status_code == 200:
+        #     response_data = response.json()
+
+        #     # Extract the assistant's response
+        #     best_img = response_data.get('choices', [])[0].get('message', {}).get('content', '') 
+        #     return best_img
+        #     # # Open the image
+        #     # image = Image.open(result_image_path)
+        #     # image.show()
+
+        # else:
+        #     print(f"Request failed with status code {response.status_code}: {response.text}")
+        #     return None
+
+
 
 
 
