@@ -1,7 +1,7 @@
 from gradio_client import Client, file
-import requests
+import uuid
 from PIL import Image
-from io import BytesIO
+import shutil
 import os
 from image_manager import ImageManager
 
@@ -30,15 +30,46 @@ class ModelProcessor:
 
         print(result)
         # Open the image
-        image_path = result[0]['image']
-        image = Image.open(image_path)
+        temp_image_path = result[0]['image']
+        image = Image.open(temp_image_path)
+
+        # Define the result directory and ensure it exists
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        result_dir = os.path.join(script_dir, "resultImages")
+        os.makedirs(result_dir, exist_ok=True)
+
+        # Get the extension of the model image
+        model_image_extension = os.path.splitext(model_image_path)[1]
+
+        # Generate a unique name using a UUID
+        unique_name = f"{uuid.uuid4()}{model_image_extension}"
+       
+        # Define the new image path with the unique name
+        new_image_path = os.path.join(result_dir, unique_name)
+
+        # # Define the new image path with the same extension as the model image
+        # new_image_path = os.path.join(result_dir, os.path.basename(temp_image_path).replace('.webp', model_image_extension))
+
+        # Move the image to the result directory
+        shutil.move(temp_image_path, new_image_path)
+    
+        # Open the moved image
+        image = Image.open(new_image_path)
         image.show()
 
-        # # extracted_path = result[0]['image'].replace("\\\\", "\\")
-        # ImageManager.move_image(original_img_path, i)
+
 
 
 if __name__ == '__main__':
-    model_image_path = ".\\modelsImages\\model4.png"
-    garment_image_path = ".\\garmentsImages\\garment7.jpg"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_image_path = os.path.join(script_dir, "modelsImages", "model4.png")
+    garment_image_path = os.path.join(script_dir, "garmentsImages", "garment7.jpg")
+
+
+    # Check if the files exist
+    if not os.path.exists(model_image_path):
+        raise FileNotFoundError(f"Model image not found: {model_image_path}")
+    if not os.path.exists(garment_image_path):
+        raise FileNotFoundError(f"Garment image not found: {garment_image_path}")
+
     ModelProcessor.process_image(model_image_path, garment_image_path)
