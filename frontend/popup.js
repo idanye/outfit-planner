@@ -52,7 +52,7 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
         if (processResponse.ok) {
             const result = await processResponse.json();
-            document.getElementById('result').innerHTML = `<img src="${result.image_url}" />`;
+            document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
             document.getElementById('result-section').style.display = 'block';
         } else {
             console.error('Error processing image');

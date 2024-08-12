@@ -19,6 +19,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+# Get the absolute path to the backend directory
+backend_dir = os.path.abspath(os.path.dirname(__file__))  # Absolute path to the backend directory
+base_directory = os.path.join(backend_dir, "scrapers/scraped_images")  # Path for scraped images
+save_directory = os.path.join(backend_dir, "garmentsImages")  # Path for garment images
+
 # Get the absolute path to the frontend directory
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
 
@@ -39,14 +44,23 @@ class ProcessRequest(BaseModel):
     category: str
 
 
-base_directory = "./scrapers/scraped_images"
-save_directory = "./garmentsImages"
-
+# base_directory = "./scrapers/scraped_images"
+# save_directory = "./garmentsImages"
 
 @app.post("/scrape-images/")
 def scrape_images(request: ScrapeRequest):
     scraper = ScraperFactory.get_scraper(request.url)
-    saved_directory, item_name = scraper.scrape_images(request.url, base_directory)
+
+    print(f"Base directory: {base_directory}")
+
+    # Call the scraper function and ensure it returns an absolute path
+    relative_saved_directory, item_name = scraper.scrape_images(request.url, base_directory)
+    print(f"Relative saved directory: {relative_saved_directory}")  # Debugging line
+
+    saved_directory = os.path.join(base_directory, relative_saved_directory)  # Ensure full path
+
+    print(f"Saved directory path before processing: {saved_directory}")  # Debugging line
+
     garment_image_path = save_first_image_without_person(saved_directory, save_directory)
     return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": garment_image_path}
 
