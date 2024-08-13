@@ -73,7 +73,7 @@ class ModelProcessor:
 
 
 class ImageEvaluator:
-    def __init__(self, api_key):
+    def __init__(self):
         self.api_endpoint = "https://api.openai.com/v1/chat/completions"
         self.api_key = "sk-proj-cQM9UT4EGqws9XBxkXydT3BlbkFJ41c9duQB6DCS1wnZfCsp"
 
@@ -115,7 +115,6 @@ if __name__ == '__main__':
     model_image_path = os.path.join(script_dir, "modelsImages", "model4.png")
     garment_image_path = os.path.join(script_dir, "garmentsImages", "garment7.jpg")
 
-
     # Check if the files exist
     if not os.path.exists(model_image_path):
         raise FileNotFoundError(f"Model image not found: {model_image_path}")
@@ -125,8 +124,8 @@ if __name__ == '__main__':
     ModelProcessor.process_image(model_image_path, garment_image_path)
 
     # after evaluating the images, we found the best image:
-    # result_dir_path = os.path.join(os.path.dirname(__file__), 'resultImages')
-    # processor = ModelProcessor()
-    # best_image = processor.find_best_image(result_dir_path)
-    # print(f"The best image is: {best_image}")
+    result_dir_path = os.path.join(os.path.dirname(__file__), 'resultImages')
+    processor = ImageEvaluator()
+    best_image = processor.find_best_image(result_dir_path)
+    print(f"The best image is: {best_image}")
 
