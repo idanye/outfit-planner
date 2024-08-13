@@ -1,5 +1,6 @@
 from gradio_client import Client, file
 import uuid
+import time
 from datetime import datetime
 import json
 from PIL import Image
@@ -7,7 +8,13 @@ import requests
 import shutil
 import os
 from image_manager import ImageManager
+from dotenv import load_dotenv
+# from classification.clothes_classifier import classify_item
+import base64
+import openai
 
+# Load environment variables from .env file
+load_dotenv()
 
 class ModelProcessor:
     def __init__(self, model_image_path):
@@ -38,11 +45,22 @@ class ModelProcessor:
 
         # Define the result directory and ensure it exists
         script_dir = os.path.dirname(os.path.abspath(__file__))
+        time.sleep(0.5)
         result_dir = os.path.join(script_dir, "resultImages")
         os.makedirs(result_dir, exist_ok=True)
 
         # Get the extension of the model image
         model_image_extension = os.path.splitext(model_image_path)[1]
+
+        # Extract the image path from the response
+        image_path = result[0]['image']
+        
+        # Ensure the file is closed before moving it
+        with open(image_path, 'rb') as f:
+            pass
+        
+        # Add a small delay to ensure the file handle is released
+        time.sleep(0.5)
 
         # Generate a unique name using a UUID
         # unique_name = f"{uuid.uuid4()}{model_image_extension}"
@@ -65,25 +83,40 @@ class ModelProcessor:
         image.show()
 
 
-class ImageEvaluator:
-    def __init__(self, api_key):
-        self.api_endpoint = "https://api.openai.com/v1/chat/completions"
-        self.api_key = "sk-proj-cQM9UT4EGqws9XBxkXydT3BlbkFJ41c9duQB6DCS1wnZfCsp"
-
+class ImageEvaluator:      
+    def __init__(self): 
+        self.api_endpoint = os.getenv("API_ENDPOINT")
+        self.api_key = os.getenv("API_KEY")
+        openai.api_key = self.api_key  # Set the API key here
 
     def get_image_evaluation(self, image_path):
         # Define the API endpoint and your API key
         with open(image_path, "rb") as image_file:
-            # Send the image to the API for evaluation
-            response = requests.post(self.api_endpoint, headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "image/png"  # Adjust as needed
-            }, data=image_file.read())
-            
-            # Process the response to get the evaluation score
-            # Assuming the response contains a score in a JSON field called 'score'
-            evaluation = response.json().get('score', 0)
-            return evaluation
+            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+
+        # Construct the prompt for GPT-4
+        prompt = (
+            "You are a fashion expert and photo evaluator. I will send you an image, "
+            "and I need you to evaluate two things: how realistic the image looks, "
+            "and how well the clothing items look on the model. "
+            "Please provide a score out of 10 for each, explain your reasoning and provide a total score for this image ."
+        )
+
+        # Send the prompt to GPT-4
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        print(response)
+        return response['choices'][0]['message']['content']
+        # # Process the response to get the evaluation score
+        # # Assuming the response contains a score in a JSON field called 'score'
+        # evaluation = response.json().get('score', 0)
+        # return evaluation
         
 
     def find_best_image(self, directory):
@@ -107,19 +140,19 @@ if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.abspath(__file__))
     model_image_path = os.path.join(script_dir, "modelsImages", "model4.png")
     garment_image_path = os.path.join(script_dir, "garmentsImages", "garment7.jpg")
-
-
+    # category = classify_item("COTTON AND MODAL CROP TOP")
+    
     # Check if the files exist
     if not os.path.exists(model_image_path):
         raise FileNotFoundError(f"Model image not found: {model_image_path}")
     if not os.path.exists(garment_image_path):
         raise FileNotFoundError(f"Garment image not found: {garment_image_path}")
 
-    ModelProcessor.process_image(model_image_path, garment_image_path)
+    # ModelProcessor.process_image(model_image_path, garment_image_path)  # uncomment this line to process the images! -----
 
     # after evaluating the images, we found the best image:
     result_dir_path = os.path.join(os.path.dirname(__file__), 'resultImages')
-    processor = ModelProcessor()
+    processor = ImageEvaluator()
     best_image = processor.find_best_image(result_dir_path)
     print(f"The best image is: {best_image}")
 

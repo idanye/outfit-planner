@@ -7,3 +7,4 @@ backend/__pycache__/
 **/__pycache__/
 backend/classification/__pycache__/
 *.pyc
+.env
