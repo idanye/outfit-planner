@@ -7,6 +7,20 @@ from model_processor import ModelProcessor
 from scrapers.scraper_factory import ScraperFactory
 from detection.person_detector import save_first_image_without_person
 from classification.clothes_classifier import ClothesClassifier
+from azure.storage.blob import BlobServiceClient
+
+connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_name = "mycontainer"
+container_client = blob_service_client.get_container_client(container_name)
+
+
+def upload_file_to_blob(file_path, file_name):
+    blob_client = container_client.get_blob_client(file_name)
+    with open(file_path, "rb") as data:
+        blob_client.upload_blob(data)
+    return blob_client.url
+
 
 app = FastAPI()
 
@@ -82,4 +96,5 @@ def process_image(request: ProcessRequest):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("fastapi_app:app", host="0.0.0.0", port=8000, reload=True)
