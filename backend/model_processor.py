@@ -1,5 +1,6 @@
 from gradio_client import Client, file
 import uuid
+from datetime import datetime
 import json
 from PIL import Image
 import requests
@@ -44,7 +45,11 @@ class ModelProcessor:
         model_image_extension = os.path.splitext(model_image_path)[1]
 
         # Generate a unique name using a UUID
-        unique_name = f"{uuid.uuid4()}{model_image_extension}"
+        # unique_name = f"{uuid.uuid4()}{model_image_extension}"
+
+        # Generate a unique name using a timestamp and a UUID
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        unique_name = f"{timestamp}_{uuid.uuid4()}{model_image_extension}"
        
         # Define the new image path with the unique name
         new_image_path = os.path.join(result_dir, unique_name)
@@ -113,5 +118,8 @@ if __name__ == '__main__':
     ModelProcessor.process_image(model_image_path, garment_image_path)
 
     # after evaluating the images, we found the best image:
-    best_image = find_best_image("./resultImages")  # fix this issue
+    result_dir_path = os.path.join(os.path.dirname(__file__), 'resultImages')
+    processor = ModelProcessor()
+    best_image = processor.find_best_image(result_dir_path)
     print(f"The best image is: {best_image}")
+
