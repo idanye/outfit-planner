@@ -131,7 +131,7 @@ class ZaraScraper(BaseScraper):
 # Example usage
 if __name__ == "__main__":
     scraper = ZaraScraper()
-    zara_url = 'https://www.zara.com/il/en/short-gabardine-dress-with-ties-p03515211.html?v1=362609455&v2=2352910'
+    zara_url = 'https://www.zara.com/il/en/short-trench-dress-with-tie-p03152376.html?v1=367598273'
     base_directory = './scraped_images'
     saved_directory = scraper.scrape_images(zara_url, base_directory)
     print(f"Saved directory: {saved_directory}")
