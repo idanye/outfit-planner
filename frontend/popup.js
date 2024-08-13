@@ -1,3 +1,6 @@
+const backendUrl = 'fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
+
+
 // Handle the upload model image button click
 document.getElementById('upload-model-btn').addEventListener('click', async () => {
     const fileInput = document.getElementById('model-image-input');
@@ -12,7 +15,7 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
     const formData = new FormData();
     formData.append('model_image', file);
 
-    const response = await fetch('http://localhost:8000/upload-model-image/', {
+    const response = await fetch(`${backendUrl}//upload-model-image/`, {
         method: 'POST',
         body: formData
     });
@@ -34,7 +37,7 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
 
 // Fetch item details from the API and display them
 async function fetchItemDetails() {
-    const response = await fetch('http://localhost:8000/scrape-images/', {
+    const response = await fetch(`${backendUrl}/scrape-images/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -58,7 +61,7 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
     const garmentImagePath = document.getElementById('item-image').src;
     const itemName = document.getElementById('item-name').textContent;
 
-    const response = await fetch('http://localhost:8000/classify-item/', {
+    const response = await fetch(`${backendUrl}/classify-item/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -72,7 +75,7 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
         const modelImagePath = "../backend/modelsImages/model_2.jpg"; // This should be updated with the actual model image path
 
-        const processResponse = await fetch('http://localhost:8000/process-image/', {
+        const processResponse = await fetch(`${backendUrl}/process-image/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -98,9 +101,6 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
 // Fetch the item details when the page loads
 window.addEventListener('load', fetchItemDetails);
-
-
-
 
 
 // run by git bash terminal : ./start.sh to run the server
