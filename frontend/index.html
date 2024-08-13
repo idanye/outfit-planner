@@ -8,7 +8,15 @@
   <div class="container">
     <h1>Outfit Planner</h1>
 
-    <div class="section" id="item-section">
+    <!-- Section for Model Image Input -->
+    <div class="section" id="input-section">
+      <h2>Upload Model Image</h2>
+      <input type="file" id="model-image-input" />
+      <button id="upload-model-btn">Upload Model Image</button>
+      <div id="upload-feedback" style="display: none;"></div>
+    </div>
+
+    <div class="section" id="item-section" style="display: none;">
       <h2>Item Details</h2>
       <div id="item-name"></div>
       <img id="item-image" src="" alt="Item Image" style="max-width: 70%; display: none; padding: 10px" />
