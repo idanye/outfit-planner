@@ -1,3 +1,37 @@
+// Handle the upload model image button click
+document.getElementById('upload-model-btn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('model-image-input');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        document.getElementById('upload-feedback').textContent = 'Please select a file.';
+        document.getElementById('upload-feedback').style.display = 'block';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('model_image', file);
+
+    const response = await fetch('http://localhost:8000/upload-model-image/', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (response.ok) {
+        document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
+        document.getElementById('upload-feedback').style.display = 'block';
+
+        // Hide input section and show item details section
+        document.getElementById('input-section').style.display = 'none';
+        document.getElementById('item-section').style.display = 'block';
+
+    } else {
+        document.getElementById('upload-feedback').textContent = 'Error uploading model image.';
+        document.getElementById('upload-feedback').style.display = 'block';
+    }
+});
+
+
 // Fetch item details from the API and display them
 async function fetchItemDetails() {
     const response = await fetch('http://localhost:8000/scrape-images/', {
@@ -64,3 +98,9 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
 // Fetch the item details when the page loads
 window.addEventListener('load', fetchItemDetails);
+
+
+
+
+
+// run by git bash terminal : ./start.sh to run the server
