@@ -44,9 +44,6 @@ class ProcessRequest(BaseModel):
     category: str
 
 
-# base_directory = "./scrapers/scraped_images"
-# save_directory = "./garmentsImages"
-
 @app.post("/scrape-images/")
 def scrape_images(request: ScrapeRequest):
     scraper = ScraperFactory.get_scraper(request.url)
@@ -55,11 +52,11 @@ def scrape_images(request: ScrapeRequest):
 
     # Call the scraper function and ensure it returns an absolute path
     relative_saved_directory, item_name = scraper.scrape_images(request.url, base_directory)
-    print(f"Relative saved directory: {relative_saved_directory}")  # Debugging line
+    # print(f"Relative saved directory: {relative_saved_directory}")  # Debugging line
 
     saved_directory = os.path.join(base_directory, relative_saved_directory)  # Ensure full path
 
-    print(f"Saved directory path before processing: {saved_directory}")  # Debugging line
+    # print(f"Saved directory path before processing: {saved_directory}")  # Debugging line
 
     garment_image_path = save_first_image_without_person(saved_directory, save_directory)
     return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": garment_image_path}
@@ -69,12 +66,14 @@ def scrape_images(request: ScrapeRequest):
 def classify_item(request: ClassifyRequest):
     classifier = ClothesClassifier()
     category = classifier.classify_item(request.item_name)
+    print(f"Item name: {request.item_name}, Category: {category}")
     return {"item_name": request.item_name, "category": category}
 
 
 @app.post("/process-image/")
 def process_image(request: ProcessRequest):
     try:
+        print(f"Model image path: {request.model_image_path}", f"Garment image path: {request.garment_image_path}")
         ModelProcessor.process_image(request.model_image_path, request.garment_image_path, request.category)
         return {"message": "Image processed successfully"}
     except Exception as e:

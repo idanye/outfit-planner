@@ -36,7 +36,7 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         const classifyResult = await response.json();
         const category = classifyResult.category;
 
-        const modelImagePath = "./modelsImages/model_2.jpg"; // This should be updated with the actual model image path
+        const modelImagePath = "../backend/modelsImages/model_2.jpg"; // This should be updated with the actual model image path
 
         const processResponse = await fetch('http://localhost:8000/process-image/', {
             method: 'POST',

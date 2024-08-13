@@ -1,6 +1,9 @@
 import os
 import re
 from datetime import datetime
+
+from selenium.webdriver.firefox.options import Options
+
 from .base_scraper import BaseScraper
 
 import requests
@@ -14,9 +17,9 @@ class ZaraScraper(BaseScraper):
     def __init__(self):
         super().__init__()
         # Setup Selenium WebDriver options
-        # firefox_options = Options()
-        # firefox_options.add_argument("--headless")
-        self.driver = webdriver.Firefox()
+        firefox_options = Options()
+        firefox_options.add_argument("--headless")
+        self.driver = webdriver.Firefox(options=firefox_options)
 
     def handle_policy_text(self):
         try:

@@ -3,13 +3,13 @@ body {
   display: flex;
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;
-  margin-right: 200px;
-  margin-left: 200px;
+  margin: 10px;
   align-items: baseline;
-  height: 100vh;
+  /*height: 100vh;*/
   flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 300px;
 }
 
 .container {
@@ -17,7 +17,7 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  width: 260px;
 }
 
 h1 {
