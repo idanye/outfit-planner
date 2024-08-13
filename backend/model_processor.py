@@ -39,29 +39,29 @@ class ModelProcessor:
                 api_name="/process_dc"
             )
 
-        print(result)
-        # Open the image
-        temp_image_path = result[0]['image']
-        image = Image.open(temp_image_path)
+            print(result)
+            # Open the image
+            temp_image_path = result[0]['image']
+            image = Image.open(temp_image_path)
 
-        # Define the result directory and ensure it exists
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        time.sleep(0.5)
-        result_dir = os.path.join(script_dir, "resultImages")
-        os.makedirs(result_dir, exist_ok=True)
+            # Define the result directory and ensure it exists
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            time.sleep(0.5)
+            result_dir = os.path.join(script_dir, "resultImages")
+            os.makedirs(result_dir, exist_ok=True)
 
-        # Get the extension of the model image
-        model_image_extension = os.path.splitext(model_image_path)[1]
+            # Get the extension of the model image
+            model_image_extension = os.path.splitext(model_image_path)[1]
 
-        # Extract the image path from the response
-        image_path = result[0]['image']
-        
-        # Ensure the file is closed before moving it
-        with open(image_path, 'rb') as f:
-            pass
-        
-        # Add a small delay to ensure the file handle is released
-        time.sleep(0.5)
+            # Extract the image path from the response
+            image_path = result[0]['image']
+            
+            # Ensure the file is closed before moving it
+            with open(image_path, 'rb') as f:
+                pass
+            
+            # Add a small delay to ensure the file handle is released
+            time.sleep(0.5)
 
             # Generate a unique name using a UUID
             # unique_name = f"{uuid.uuid4()}{model_image_extension}"
@@ -103,7 +103,7 @@ class ImageEvaluator:
 
         # Construct the prompt for GPT-4
         prompt = (
-            "You are a fashion expert and photo evaluator. I will send you an image, "
+            "You are a fashion expert and photo evaluator. I will send you an image in format of base64, "
             "and I need you to evaluate two things: how realistic the image looks, "
             "and how well the clothing items look on the model. "
             "Please provide a score out of 10 for each, explain your reasoning and provide a total score for this image ."
@@ -111,7 +111,7 @@ class ImageEvaluator:
 
         # Send the prompt to GPT-4
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-4-vision-preview",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": prompt}
@@ -136,11 +136,11 @@ class ImageEvaluator:
                 score = self.get_image_evaluation(image_path)
                 print(f"Image: {filename}, Score: {score}")
 
-                if score > best_score:
-                    best_score = score
-                    best_image = filename
+        #         if score > best_score:
+        #             best_score = score
+        #             best_image = filename
 
-        return best_image
+        # return best_image
 
 
 if __name__ == '__main__':
@@ -155,12 +155,13 @@ if __name__ == '__main__':
     if not os.path.exists(garment_image_path):
         raise FileNotFoundError(f"Garment image not found: {garment_image_path}")
 
-    # ModelProcessor.process_image(model_image_path, garment_image_path)  # uncomment this line to process the images! -----
+    ModelProcessor.process_image(model_image_path, garment_image_path)
 
+    # the evalouation of the images is not working properly yet - need to fix it !!
+    
     # after evaluating the images, we found the best image:
-    result_dir_path = os.path.join(os.path.dirname(__file__), 'resultImages')
-    processor = ImageEvaluator()
-    processor = ImageEvaluator()
-    best_image = processor.find_best_image(result_dir_path)
-    print(f"The best image is: {best_image}")
+    # result_dir_path = os.path.join(os.path.dirname(__file__), 'resultImages')
+    # processor = ImageEvaluator()
+    # best_image = processor.find_best_image(result_dir_path)
+    # print(f"The best image is: {best_image}")
 
