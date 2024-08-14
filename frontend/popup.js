@@ -1,5 +1,52 @@
 const backendUrl = 'fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
 
+// Handle Google Sign-In
+function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    var idToken = googleUser.getAuthResponse().id_token;
+
+    // Save user info in localStorage
+    localStorage.setItem('userName', profile.getName());
+    localStorage.setItem('userEmail', profile.getEmail());
+    localStorage.setItem('idToken', idToken);
+
+    // Display the sign-out button and hide the sign-in button
+    document.querySelector('.g-signin2').style.display = 'none';
+    document.getElementById('signout-btn').style.display = 'inline-block';
+
+    // Show the input section for uploading the image
+    document.getElementById('input-section').style.display = 'block';
+}
+
+// Handle Google Sign-Out
+function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        console.log('User signed out.');
+
+        // Clear user info from localStorage
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('idToken');
+
+        // Show the sign-in button and hide the sign-out button
+        document.querySelector('.g-signin2').style.display = 'inline-block';
+        document.getElementById('signout-btn').style.display = 'none';
+
+        // Hide the input section
+        document.getElementById('input-section').style.display = 'none';
+    });
+}
+
+// Check if the user is already signed in when the page loads
+window.addEventListener('load', function() {
+    if (localStorage.getItem('userName')) {
+        // User is signed in, show the sign-out button and image input section
+        document.querySelector('.g-signin2').style.display = 'none';
+        document.getElementById('signout-btn').style.display = 'inline-block';
+        document.getElementById('input-section').style.display = 'block';
+    }
+});
 
 // Handle the upload model image button click
 document.getElementById('upload-model-btn').addEventListener('click', async () => {
@@ -21,6 +68,12 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
     });
 
     if (response.ok) {
+        const result = await response.json();
+        const modelImagePath = result.model_image_url; // The URL of the uploaded image
+
+        // Store the URL of the uploaded image
+        window.localStorage.setItem('modelImageUrl', modelImageUrl);
+
         document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
         document.getElementById('upload-feedback').style.display = 'block';
 
@@ -73,7 +126,8 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         const classifyResult = await response.json();
         const category = classifyResult.category;
 
-        const modelImagePath = "../backend/modelsImages/model_2.jpg"; // This should be updated with the actual model image path
+        // Retrieve the stored Blob URL
+        const modelImageUrl = localStorage.getItem('modelImageUrl');
 
         const processResponse = await fetch(`${backendUrl}/process-image/`, {
             method: 'POST',
@@ -81,7 +135,7 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model_image_path: modelImagePath,
+                model_image_path: modelImageUrl,
                 garment_image_path: garmentImagePath,
                 category: category
             })

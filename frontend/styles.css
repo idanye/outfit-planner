@@ -71,3 +71,11 @@ button:hover {
   border-radius: 4px;
   color: #333;
 }
+
+#upload-feedback {
+  display: flex;
+  padding: 5px;
+  justify-content: center;
+  color: red;
+  font-size: small;
+}
