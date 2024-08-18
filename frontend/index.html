@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="English">
+<html lang="en">
 <head>
   <title>Outfit Planner</title>
   <link rel="stylesheet" href="styles.css">
-  <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <body>
   <div class="container">
-    <h1>Outfit Planner</h1>
+    <div class="header">
+      <h1>Outfit Planner</h1>
 
-<!--    &lt;!&ndash; Google Sign-In Section &ndash;&gt;-->
-<!--    <div id="signin-section">-->
-<!--      <div class="g-signin2" data-onsuccess="onSignIn"></div>-->
-<!--      <button id="signout-btn" style="display: none;" onclick="signOut();">Sign Out</button>-->
-<!--    </div>-->
+      <!-- Google User Info Section -->
+      <div id="user-info" style="display: none;">
+        <img id="user-image" src="" alt="User Image" style="border-radius: 50%; width: 40px; height: 40px; cursor: pointer;" />
+        <span id="user-name"></span>
+      </div>
+    </div>
 
     <!-- Section for Model Image Input -->
     <div class="section" id="input-section" style="display: none;">

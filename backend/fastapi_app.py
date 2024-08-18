@@ -16,10 +16,14 @@ container_name = "mycontainer"
 container_client = blob_service_client.get_container_client(container_name)
 
 
-def upload_file_to_blob(file, file_name):
-    blob_client = container_client.get_blob_client(file_name)
-    blob_client.upload_blob(file)
-    return blob_client.url
+def upload_test_file(file_path, blob_name):
+    try:
+        blob_client = container_client.get_blob_client(blob_name)
+        with open(file_path, "rb") as data:
+            blob_client.upload_blob(data, overwrite=True)
+        print(f"Upload successful: {blob_client.url}")
+    except Exception as e:
+        print(f"Failed to upload file: {e}")
 
 
 app = FastAPI()
