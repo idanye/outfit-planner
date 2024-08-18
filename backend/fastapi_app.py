@@ -22,6 +22,7 @@ def upload_test_file(file_path, blob_name):
         with open(file_path, "rb") as data:
             blob_client.upload_blob(data, overwrite=True)
         print(f"Upload successful: {blob_client.url}")
+        return blob_client.url
     except Exception as e:
         print(f"Failed to upload file: {e}")
 
@@ -70,7 +71,7 @@ async def upload_model_image(file: UploadFile = File(...)):
         unique_filename = f"{uuid4()}{file_extension}"
 
         # Upload the file directly to Azure Blob Storage
-        blob_url = upload_file_to_blob(file.file, unique_filename)
+        blob_url = upload_test_file(file.file, unique_filename)
 
         return {"model_image_url": blob_url}
     except Exception as e:
@@ -116,4 +117,4 @@ def process_image(request: ProcessRequest):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("fastapi_app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("fastapi_app:app", host="0.0.0.0", port=443, reload=True)

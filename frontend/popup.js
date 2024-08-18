@@ -207,5 +207,4 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 // Fetch the item details when the page loads
 window.addEventListener('load', fetchItemDetails);
 
-
 // run by git bash terminal : ./start.sh to run the server
