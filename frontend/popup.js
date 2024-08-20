@@ -1,5 +1,88 @@
-const backendUrl = 'fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
+const backendUrl = 'https://fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
 
+// Function to handle Google sign-in using Chrome Identity API
+function signInWithGoogle() {
+    chrome.identity.getAuthToken({ interactive: true }, function(token) {
+        if (chrome.runtime.lastError || !token) {
+            console.error("Sign-in failed: ", chrome.runtime.lastError);
+            return;
+        }
+
+        // Use the token to get user information from the Google API
+        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => response.json())
+        .then(userInfo => {
+            // Extract first name from full name
+            const fullName = userInfo.name;
+            const firstName = fullName.split(' ')[0]; // Get the first word (assumed to be the first name)
+
+            // Save user info in localStorage
+            localStorage.setItem('userName', firstName);
+            localStorage.setItem('userEmail', userInfo.email);
+            localStorage.setItem('userImage', userInfo.picture);
+
+            // Update UI to display user info
+            document.getElementById('user-name').textContent = firstName;
+            document.getElementById('user-image').src = userInfo.picture;
+            document.getElementById('user-info').style.display = 'flex';
+            document.getElementById('input-section').style.display = 'block';
+
+            // Check if model image exists in localStorage
+            const modelImageUrl = localStorage.getItem('modelImageUrl');
+            if (modelImageUrl) {
+                fetchItemDetails(); // Only fetch details if model image exists
+            }
+        })
+        .catch(error => console.error("Error fetching user info: ", error));
+    });
+}
+
+// Function to handle Google sign-out
+function signOut() {
+    chrome.identity.clearAllCachedAuthTokens(() => {
+        // Clear local storage
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userImage');
+        localStorage.removeItem('modelImageUrl');
+
+        // Reset UI
+        document.getElementById('user-info').style.display = 'none';
+        document.getElementById('input-section').style.display = 'none';
+
+        // Automatically trigger sign-in again
+        signInWithGoogle();
+    });
+}
+
+/// Attach event listener to user image for sign-out
+document.getElementById('user-image').addEventListener('click', signOut);
+
+// Check if the user is already signed in when the page loads
+window.addEventListener('load', function() {
+    const userName = localStorage.getItem('userName');
+    const userImage = localStorage.getItem('userImage');
+    const modelImageUrl = localStorage.getItem('modelImageUrl');
+
+    if (userName && userImage) {
+        document.getElementById('user-name').textContent = userName;
+        document.getElementById('user-image').src = userImage;
+        document.getElementById('user-info').style.display = 'flex';
+        document.getElementById('input-section').style.display = 'block';
+
+        // Only run the APIs if the model image is saved
+        if (modelImageUrl) {
+            fetchItemDetails();
+        }
+    } else {
+        // Automatically sign in if not signed in
+        signInWithGoogle();
+    }
+});
 
 // Handle the upload model image button click
 document.getElementById('upload-model-btn').addEventListener('click', async () => {
@@ -15,22 +98,39 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
     const formData = new FormData();
     formData.append('model_image', file);
 
-    const response = await fetch(`${backendUrl}//upload-model-image/`, {
-        method: 'POST',
-        body: formData
-    });
+    try {
+        const response = await fetch(`${backendUrl}/upload-model-image/`, {
+            method: 'POST',
+            body: formData
+        });
 
-    if (response.ok) {
-        document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
+        if (response.ok) {
+            const result = await response.json();
+            const modelImageUrl = result.model_image_url; // The URL of the uploaded image
+
+            // Store the URL of the uploaded image
+            window.localStorage.setItem('modelImageUrl', modelImageUrl);
+
+            document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
+            document.getElementById('upload-feedback').style.display = 'block';
+
+            // Hide input section and show item details section
+            document.getElementById('input-section').style.display = 'none';
+            document.getElementById('item-section').style.display = 'block';
+
+            // Now fetch item details since the model image has been uploaded
+            await fetchItemDetails();
+        } else {
+            const errorText = await response.text(); // Get error details from the response
+            document.getElementById('upload-feedback').textContent = `Error uploading model image: ${errorText}`;
+            document.getElementById('upload-feedback').style.display = 'block';
+            console.error(`Error response: ${errorText}`);
+        }
+    } catch (error) {
+        // Catch network or other errors
+        document.getElementById('upload-feedback').textContent = `Error uploading model image: ${error.message}`;
         document.getElementById('upload-feedback').style.display = 'block';
-
-        // Hide input section and show item details section
-        document.getElementById('input-section').style.display = 'none';
-        document.getElementById('item-section').style.display = 'block';
-
-    } else {
-        document.getElementById('upload-feedback').textContent = 'Error uploading model image.';
-        document.getElementById('upload-feedback').style.display = 'block';
+        console.error('Upload error:', error);
     }
 });
 
@@ -73,26 +173,31 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         const classifyResult = await response.json();
         const category = classifyResult.category;
 
-        const modelImagePath = "../backend/modelsImages/model_2.jpg"; // This should be updated with the actual model image path
+        // Retrieve the stored Blob URL
+        const modelImageUrl = localStorage.getItem('modelImageUrl');
 
-        const processResponse = await fetch(`${backendUrl}/process-image/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model_image_path: modelImagePath,
-                garment_image_path: garmentImagePath,
-                category: category
-            })
-        });
+        if (modelImageUrl) { // Only proceed if modelImageUrl exists
+            const processResponse = await fetch(`${backendUrl}/process-image/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model_image_path: modelImageUrl,
+                    garment_image_path: garmentImagePath,
+                    category: category
+                })
+            });
 
-        if (processResponse.ok) {
-            const result = await processResponse.json();
-            document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
-            document.getElementById('result-section').style.display = 'block';
+            if (processResponse.ok) {
+                const result = await processResponse.json();
+                document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
+                document.getElementById('result-section').style.display = 'block';
+            } else {
+                console.error('Error processing image');
+            }
         } else {
-            console.error('Error processing image');
+            console.error('Model image URL not found. Skipping image processing.');
         }
     } else {
         console.error('Error classifying item');
@@ -101,6 +206,5 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
 // Fetch the item details when the page loads
 window.addEventListener('load', fetchItemDetails);
-
 
 // run by git bash terminal : ./start.sh to run the server

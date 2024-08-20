@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -8,6 +8,7 @@ from scrapers.scraper_factory import ScraperFactory
 from detection.person_detector import save_first_image_without_person
 from classification.clothes_classifier import ClothesClassifier
 from azure.storage.blob import BlobServiceClient
+from uuid import uuid4
 
 connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 blob_service_client = BlobServiceClient.from_connection_string(connect_str)
@@ -15,11 +16,15 @@ container_name = "mycontainer"
 container_client = blob_service_client.get_container_client(container_name)
 
 
-def upload_file_to_blob(file_path, file_name):
-    blob_client = container_client.get_blob_client(file_name)
-    with open(file_path, "rb") as data:
-        blob_client.upload_blob(data)
-    return blob_client.url
+def upload_test_file(file_path, blob_name):
+    try:
+        blob_client = container_client.get_blob_client(blob_name)
+        with open(file_path, "rb") as data:
+            blob_client.upload_blob(data, overwrite=True)
+        print(f"Upload successful: {blob_client.url}")
+        return blob_client.url
+    except Exception as e:
+        print(f"Failed to upload file: {e}")
 
 
 app = FastAPI()
@@ -56,6 +61,21 @@ class ProcessRequest(BaseModel):
     model_image_path: str
     garment_image_path: str
     category: str
+
+
+@app.post("/upload-model-image/")
+async def upload_model_image(file: UploadFile = File(...)):
+    try:
+        # Generate a unique filename
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid4()}{file_extension}"
+
+        # Upload the file directly to Azure Blob Storage
+        blob_url = upload_test_file(file.file, unique_filename)
+
+        return {"model_image_url": blob_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/scrape-images/")
@@ -97,4 +117,4 @@ def process_image(request: ProcessRequest):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("fastapi_app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("fastapi_app:app", host="0.0.0.0", port=443, reload=True)

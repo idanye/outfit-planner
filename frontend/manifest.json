@@ -12,10 +12,22 @@
     }
   },
   "permissions": [
-    "activeTab"
+    "identity",
+    "activeTab",
+    "storage"
   ],
   "host_permissions": [
-      "*"
-  ]
+    "https://fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net/*"
+  ],
+  "oauth2": {
+    "client_id": "360989864479-0911fj4807hlrb906sukup7pje0sgmjb.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }
 

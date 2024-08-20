@@ -1,12 +1,20 @@
 <!DOCTYPE html>
-<html lang="English">
+<html lang="en">
 <head>
   <title>Outfit Planner</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>Outfit Planner</h1>
+    <div class="header">
+      <h1>Outfit Planner</h1>
+
+      <!-- Google User Info Section -->
+      <div id="user-info" style="display: none;">
+        <img id="user-image" src="" alt="User Image" style="border-radius: 50%; width: 40px; height: 40px; cursor: pointer;" />
+        <span id="user-name"></span>
+      </div>
+    </div>
 
     <!-- Section for Google Sign-In -->
     <div class="section" id="signin-section">
@@ -16,7 +24,7 @@
     </div>
 
     <!-- Section for Model Image Input -->
-    <div class="section" id="input-section">
+    <div class="section" id="input-section" style="display: none;">
       <h2>Upload Model Image</h2>
       <input type="file" id="model-image-input" />
       <button id="upload-model-btn">Upload Model Image</button>
