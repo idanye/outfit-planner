@@ -11,6 +11,9 @@ from azure.storage.blob import BlobServiceClient
 from uuid import uuid4
 
 connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+if connect_str is None:
+    raise ValueError("AZURE_STORAGE_CONNECTION_STRING environment variable is not set")
+
 blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 container_name = "mycontainer"
 container_client = blob_service_client.get_container_client(container_name)

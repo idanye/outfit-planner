@@ -31,6 +31,9 @@ function signInWithGoogle() {
             document.getElementById('user-info').style.display = 'flex';
             document.getElementById('input-section').style.display = 'block';
 
+            // Hide sign-in section
+            document.getElementById('signin-section').style.display = 'none';
+            
             // Check if model image exists in localStorage
             const modelImageUrl = localStorage.getItem('modelImageUrl');
             if (modelImageUrl) {
@@ -41,9 +44,16 @@ function signInWithGoogle() {
     });
 }
 
+// Add event listener for the sign-in button
+document.getElementById('signin-button').addEventListener('click', signInWithGoogle);
+
 // Function to handle Google sign-out
 function signOut() {
-    chrome.identity.clearAllCachedAuthTokens(() => {
+    // Display confirmation dialog
+    const confirmSignOut = confirm("Are you sure you want to sign out?");
+    
+    if (confirmSignOut) {
+        chrome.identity.clearAllCachedAuthTokens(() => {
         // Clear local storage
         localStorage.removeItem('userName');
         localStorage.removeItem('userEmail');
@@ -53,10 +63,11 @@ function signOut() {
         // Reset UI
         document.getElementById('user-info').style.display = 'none';
         document.getElementById('input-section').style.display = 'none';
-
-        // Automatically trigger sign-in again
-        signInWithGoogle();
-    });
+        document.getElementById('item-section').style.display = 'none';
+        document.getElementById('result-section').style.display = 'none';
+        document.getElementById('signin-section').style.display = 'block'; // Show sign-in section
+        });
+    }
 }
 
 /// Attach event listener to user image for sign-out
@@ -80,7 +91,7 @@ window.addEventListener('load', function() {
         }
     } else {
         // Automatically sign in if not signed in
-        signInWithGoogle();
+        // signInWithGoogle();
     }
 });
 
