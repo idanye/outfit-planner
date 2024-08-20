@@ -25,6 +25,9 @@ function signInWithGoogle() {
             localStorage.setItem('userEmail', userInfo.email);
             localStorage.setItem('userImage', userInfo.picture);
 
+            print("user name: " + firstName);
+            print("user e: " + userInfo.email);
+
             // Update UI to display user info
             document.getElementById('user-name').textContent = firstName;
             document.getElementById('user-image').src = userInfo.picture;
@@ -47,6 +50,9 @@ function signInWithGoogle() {
 // Add event listener for the sign-in button
 document.getElementById('signin-button').addEventListener('click', signInWithGoogle);
 
+// Attach event listener to user image for sign-out
+document.getElementById('user-image').addEventListener('click', signOut);
+
 // Function to handle Google sign-out
 function signOut() {
     // Display confirmation dialog
@@ -65,13 +71,17 @@ function signOut() {
         document.getElementById('input-section').style.display = 'none';
         document.getElementById('item-section').style.display = 'none';
         document.getElementById('result-section').style.display = 'none';
-        document.getElementById('signin-section').style.display = 'block'; // Show sign-in section
+        document.getElementById('signin-section').style.display = 'block'; // Show sign-in section but not trigger sign-in flow
         });
+
+        print("user name after: " + firstName);
+        print("user e after: " + userInfo.email);
+        
     }
 }
 
 /// Attach event listener to user image for sign-out
-document.getElementById('user-image').addEventListener('click', signOut);
+// document.getElementById('user-image').addEventListener('click', signOut);
 
 // Check if the user is already signed in when the page loads
 window.addEventListener('load', function() {
@@ -90,6 +100,7 @@ window.addEventListener('load', function() {
             fetchItemDetails();
         }
     } else {
+        document.getElementById('input-section').style.display = 'none';
         // Automatically sign in if not signed in
         // signInWithGoogle();
     }
