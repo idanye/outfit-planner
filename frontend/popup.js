@@ -94,6 +94,7 @@ window.addEventListener('load', function() {
         document.getElementById('user-image').src = userImage;
         document.getElementById('user-info').style.display = 'flex';
         document.getElementById('input-section').style.display = 'block';
+        document.getElementById('signin-section').style.display = 'none'; // Hide sign-in section when user is signed in
 
         // Only run the APIs if the model image is saved
         // if (modelImageUrl) {
@@ -101,8 +102,7 @@ window.addEventListener('load', function() {
         // }
     } else {
         document.getElementById('input-section').style.display = 'none';
-        // Automatically sign in if not signed in
-        // signInWithGoogle();
+        document.getElementById('signin-section').style.display = 'block'; // Show sign-in section if user is not signed in
     }
 });
 
