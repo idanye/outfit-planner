@@ -1,5 +1,20 @@
 // const backendUrl = 'https://fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
 
+// Function to show a specific section and save it to localStorage
+function showSection(sectionId) {
+    // Hide all sections
+    document.getElementById('signin-section').style.display = 'none';
+    document.getElementById('input-section').style.display = 'none';
+    document.getElementById('item-section').style.display = 'none';
+    document.getElementById('result-section').style.display = 'none';
+
+    // Show the selected section
+    document.getElementById(sectionId).style.display = 'block';
+
+    // Save the current section to localStorage
+    localStorage.setItem('currentSection', sectionId);
+}
+
 // Function to handle Google sign-in using Chrome Identity API
 function signInWithGoogle() {
     chrome.identity.getAuthToken({ interactive: true }, function(token) {
@@ -89,12 +104,13 @@ function signOut() {
                                 localStorage.removeItem('userImage');
                                 localStorage.removeItem('modelImageUrl');
 
-                                // Reset UI
-                                document.getElementById('user-info').style.display = 'none';
-                                document.getElementById('input-section').style.display = 'none';
-                                document.getElementById('item-section').style.display = 'none';
-                                document.getElementById('result-section').style.display = 'none';
-                                document.getElementById('signin-section').style.display = 'block'; // Show sign-in section
+                                // Reset UI and Update UI to display sign-in section
+                                showSection('signin-section');
+                                // document.getElementById('user-info').style.display = 'none';
+                                // document.getElementById('input-section').style.display = 'none';
+                                // document.getElementById('item-section').style.display = 'none';
+                                // document.getElementById('result-section').style.display = 'none';
+                                //document.getElementById('signin-section').style.display = 'block'; // Show sign-in section
                             });
                         });
                     })
@@ -106,24 +122,50 @@ function signOut() {
 
 // Check if the user is already signed in when the page loads
 window.addEventListener('load', function() {
+    const savedSection = localStorage.getItem('currentSection');
+    const modelImageUrl = localStorage.getItem('modelImageUrl');
+    
+    // Log the values of savedSection
+    console.log('Saved Section:', savedSection);
+
+    // If there's a saved section, display it; otherwise, default to sign-in
+    if (savedSection) {
+        showSection(savedSection);
+    } else {
+        showSection('signin-section');
+    }
+
     const userName = localStorage.getItem('userName');
     const userImage = localStorage.getItem('userImage');
-    const modelImageUrl = localStorage.getItem('modelImageUrl');
+    // const modelImageUrl = localStorage.getItem('modelImageUrl');
 
     if (userName && userImage) {
+        showSection('input-section');
         document.getElementById('user-name').textContent = userName;
         document.getElementById('user-image').src = userImage;
         document.getElementById('user-info').style.display = 'flex';
-        document.getElementById('input-section').style.display = 'block';
-        document.getElementById('signin-section').style.display = 'none'; // Hide sign-in section when user is signed in
+        
+        // If no model image URL is present, show the input section
+        // if (!modelImageUrl) {
+        //     showSection('input-section');
+        // }
+
+    // Ensure that the section doesn't switch back to input-section if not necessary
+    if (savedSection === 'item-section' && modelImageUrl) {
+        showSection('item-section');
+    }
+
+        // document.getElementById('input-section').style.display = 'block';
+        // document.getElementById('signin-section').style.display = 'none'; // Hide sign-in section when user is signed in
 
         // Only run the APIs if the model image is saved
         // if (modelImageUrl) {
         //     fetchItemDetails();
         // }
     } else {
-        document.getElementById('input-section').style.display = 'none';
-        document.getElementById('signin-section').style.display = 'block'; // Show sign-in section if user is not signed in
+        console.log('load - else');
+        // document.getElementById('input-section').style.display = 'none';
+        // document.getElementById('signin-section').style.display = 'block'; // Show sign-in section if user is not signed in
     }
 });
 
@@ -163,14 +205,16 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
             window.localStorage.setItem('modelImageUrl', result.model_image_url);
 
             document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
-            document.getElementById('upload-feedback').style.display = 'block';
+            showSection('item-section');
+            // document.getElementById('upload-feedback').style.display = 'block';
 
             // Hide input section and show item details section
-            document.getElementById('input-section').style.display = 'none';
-            document.getElementById('item-section').style.display = 'block';
+            // document.getElementById('input-section').style.display = 'none';
+            // document.getElementById('item-section').style.display = 'block';
 
             // Now fetch item details since the model image has been uploaded
             await fetchItemDetails();
+            
         } else {
             const errorText = await response.text(); // Get error details from the response
             document.getElementById('upload-feedback').textContent = `Error uploading model image: ${errorText}`;
@@ -339,7 +383,8 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
             if (processResponse.ok) {
                 const result = await processResponse.json();
                 document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
-                document.getElementById('result-section').style.display = 'block';
+                showSection('result-section');
+                // document.getElementById('result-section').style.display = 'block';
             } else {
                 console.error('Error processing image');
             }
