@@ -2,11 +2,15 @@
 
 // Function to show a specific section and save it to localStorage
 function showSection(sectionId) {
+    // Hide all sections first
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.style.display = 'none');
+
     // Hide all sections
-    document.getElementById('signin-section').style.display = 'none';
-    document.getElementById('input-section').style.display = 'none';
-    document.getElementById('item-section').style.display = 'none';
-    document.getElementById('result-section').style.display = 'none';
+    // document.getElementById('signin-section').style.display = 'none';
+    // document.getElementById('input-section').style.display = 'none';
+    // document.getElementById('item-section').style.display = 'none';
+    // document.getElementById('result-section').style.display = 'none';
 
     // Show the selected section
     document.getElementById(sectionId).style.display = 'block';
@@ -106,6 +110,7 @@ function signOut() {
 
                                 // Reset UI and Update UI to display sign-in section
                                 showSection('signin-section');
+                                document.getElementById('user-info').style.display = 'none';
                                 // document.getElementById('user-info').style.display = 'none';
                                 // document.getElementById('input-section').style.display = 'none';
                                 // document.getElementById('item-section').style.display = 'none';
@@ -129,11 +134,11 @@ window.addEventListener('load', function() {
     console.log('Saved Section:', savedSection);
 
     // If there's a saved section, display it; otherwise, default to sign-in
-    if (savedSection) {
-        showSection(savedSection);
-    } else {
-        showSection('signin-section');
-    }
+    // if (savedSection) {
+    //     showSection(savedSection);
+    // } else {
+    //     showSection('signin-section');
+    // }
 
     const userName = localStorage.getItem('userName');
     const userImage = localStorage.getItem('userImage');
@@ -150,20 +155,18 @@ window.addEventListener('load', function() {
         //     showSection('input-section');
         // }
 
-    // Ensure that the section doesn't switch back to input-section if not necessary
-    if (savedSection === 'item-section' && modelImageUrl) {
-        showSection('item-section');
+    // this block ensures that the right section will be shown even if the window reloads
+    if (savedSection) {
+        showSection(savedSection);
+    } else {
+        showSection('signin-section');
     }
-
-        // document.getElementById('input-section').style.display = 'block';
-        // document.getElementById('signin-section').style.display = 'none'; // Hide sign-in section when user is signed in
 
         // Only run the APIs if the model image is saved
         // if (modelImageUrl) {
         //     fetchItemDetails();
         // }
     } else {
-        console.log('load - else');
         // document.getElementById('input-section').style.display = 'none';
         // document.getElementById('signin-section').style.display = 'block'; // Show sign-in section if user is not signed in
     }
@@ -330,7 +333,7 @@ async function fetchItemDetails() {
     function showNothingToDisplay() {
         document.getElementById('item-name').textContent = "Nothing to display";
         document.getElementById('item-image').style.display = 'none';
-        document.getElementById('show-result-btn').style.display = 'none';
+        document.getElementById('show-result-btn').style.display = 'block';
     }
 
     // Helper function to show the loading icon
