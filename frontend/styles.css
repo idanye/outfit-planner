@@ -51,7 +51,13 @@ h1 {
   font-weight: bold;
 }
 
-.section {
+#loading-icon {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#item-name {
+  font-size: 12px;
 }
 
 h2 {

@@ -1,4 +1,4 @@
-const backendUrl = 'https://fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
+// const backendUrl = 'https://fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
 
 // Function to handle Google sign-in using Chrome Identity API
 function signInWithGoogle() {
@@ -26,7 +26,7 @@ function signInWithGoogle() {
             localStorage.setItem('userImage', userInfo.picture);
 
             print("user name: " + firstName);
-            print("user e: " + userInfo.email);
+            print("user email: " + userInfo.email);
 
             // Update UI to display user info
             document.getElementById('user-name').textContent = firstName;
@@ -39,9 +39,9 @@ function signInWithGoogle() {
             
             // Check if model image exists in localStorage
             const modelImageUrl = localStorage.getItem('modelImageUrl');
-            if (modelImageUrl) {
-                fetchItemDetails(); // Only fetch details if model image exists
-            }
+            // if (modelImageUrl) {
+            //     fetchItemDetails(); // Only fetch details if model image exists
+            // }
         })
         .catch(error => console.error("Error fetching user info: ", error));
     });
@@ -74,8 +74,8 @@ function signOut() {
         document.getElementById('signin-section').style.display = 'block'; // Show sign-in section but not trigger sign-in flow
         });
 
-        print("user name after: " + firstName);
-        print("user e after: " + userInfo.email);
+        // print("user name after: " + firstName);
+        print("user email after: " + userInfo.email);
         
     }
 }
@@ -96,9 +96,9 @@ window.addEventListener('load', function() {
         document.getElementById('input-section').style.display = 'block';
 
         // Only run the APIs if the model image is saved
-        if (modelImageUrl) {
-            fetchItemDetails();
-        }
+        // if (modelImageUrl) {
+        //     fetchItemDetails();
+        // }
     } else {
         document.getElementById('input-section').style.display = 'none';
         // Automatically sign in if not signed in
@@ -117,21 +117,29 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
         return;
     }
 
+    // Check if the selected file is an image
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validImageTypes.includes(file.type)) {
+        document.getElementById('upload-feedback').textContent = 'Please upload a valid image file (JPEG, PNG, WebP).';
+        document.getElementById('upload-feedback').style.display = 'block';
+        return;
+    }
+
     const formData = new FormData();
-    formData.append('model_image', file);
+    formData.append('file', file);
 
     try {
-        const response = await fetch(`${backendUrl}/upload-model-image/`, {
+        const response = await fetch(`http://localhost:8000/upload-model-image/`, {
             method: 'POST',
             body: formData
         });
 
         if (response.ok) {
+            console.log('Model image uploaded successfully');
             const result = await response.json();
-            const modelImageUrl = result.model_image_url; // The URL of the uploaded image
 
             // Store the URL of the uploaded image
-            window.localStorage.setItem('modelImageUrl', modelImageUrl);
+            window.localStorage.setItem('modelImageUrl', result.model_image_url);
 
             document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
             document.getElementById('upload-feedback').style.display = 'block';
@@ -157,24 +165,120 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
 });
 
 
+// Function to send the model image URL to the backend
+async function sendModelImageUrlToBackend(imageUrl) {
+    try {
+        console.log("Sending image URL to backend:", imageUrl);  // Debugging log
+
+        const response = await fetch(`http://localhost:8000/download-model-image/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ image_url: imageUrl })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            document.getElementById('upload-feedback').textContent = result.message;
+        } else {
+            const errorText = await response.text();
+            document.getElementById('upload-feedback').textContent = `Error downloading image: ${errorText}`;
+            console.error(`Error response: ${errorText}`);
+        }
+    } catch (error) {
+        document.getElementById('upload-feedback').textContent = `Error downloading image: ${error.message}`;
+        console.error('Download error:', error);
+    }
+}
+
+
 // Fetch item details from the API and display them
 async function fetchItemDetails() {
-    const response = await fetch(`${backendUrl}/scrape-images/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ url: 'https://www.zara.com/il/en/cropped-shirt-with-cutwork-embroidery-p03564079.html?v1=365453566&v2=2352910' })
+    // Get the current active tab's URL
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        const currentUrl = tabs[0].url;
+        console.log('Current URL:', currentUrl);
+
+        // Show loading icon
+        showLoadingIcon();
+
+        // Create a URL object from the current URL
+        const urlObject = new URL(currentUrl);
+
+        // Log the pathname for debugging
+        const pathName = urlObject.pathname;
+        console.log('Pathname:', pathName);
+
+        // 1. Check if the URL starts with https://www.zara.com/
+        const domainRegex = /^https:\/\/www\.zara\.com\//;
+        if (!domainRegex.test(currentUrl)) {
+            console.log('Not a Zara URL');
+            hideLoadingIcon();
+            showNothingToDisplay();
+            return;
+        }
+
+        // 2. Extract the pathname and check if it contains "/p" followed by digits (product ID)
+        const productPathRegex = /-p\d{8}\.html$/;
+        if (!productPathRegex.test(pathName)) {
+            console.log('Url does not contain product path');
+            hideLoadingIcon();
+            showNothingToDisplay();
+            return;
+        }
+
+        // 3. Check if the query parameters contain v1 and v2 with numeric values
+        const v1 = urlObject.searchParams.get("v1");
+        const v2 = urlObject.searchParams.get("v2");
+
+        if (!v1 || !v2 || isNaN(v1) || isNaN(v2)) {
+            console.log('URL does not contain valid v1 and v2 parameters');
+            hideLoadingIcon();
+            showNothingToDisplay();
+            return;
+        }
+
+        // If all validations pass, make the API request
+        fetch(`http://localhost:8000/scrape-images/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({url: currentUrl})
+        })
+            .then(response => response.json())
+
+            .then(result => {
+                hideLoadingIcon();
+                document.getElementById('item-name').textContent = result.item_name;
+                document.getElementById('item-image').src = result.garment_image_path;
+                document.getElementById('item-image').style.display = 'block';
+                document.getElementById('show-result-btn').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching item details:', error);
+            });
     });
 
-    if (response.ok) {
-        const result = await response.json();
-        document.getElementById('item-name').textContent = result.item_name;
-        document.getElementById('item-image').src = result.garment_image_path;
-        document.getElementById('item-image').style.display = 'block';
-        document.getElementById('show-result-btn').style.display = 'block';
-    } else {
-        console.error('Error fetching item details');
+    // Helper function to show "Nothing to display" message
+    function showNothingToDisplay() {
+        document.getElementById('item-name').textContent = "Nothing to display";
+        document.getElementById('item-image').style.display = 'none';
+        document.getElementById('show-result-btn').style.display = 'none';
+    }
+
+    // Helper function to show the loading icon
+    function showLoadingIcon() {
+        document.getElementById('loading-icon').style.display = 'block';
+        document.getElementById('item-name').textContent = "";
+        document.getElementById('item-image').style.display = 'none';
+        document.getElementById('show-result-btn').style.display = 'none';
+    }
+
+    // Helper function to hide the loading icon
+    function hideLoadingIcon() {
+        document.getElementById('loading-icon').style.display = 'none';
     }
 }
 
@@ -183,7 +287,7 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
     const garmentImagePath = document.getElementById('item-image').src;
     const itemName = document.getElementById('item-name').textContent;
 
-    const response = await fetch(`${backendUrl}/classify-item/`, {
+    const response = await fetch(`http://localhost:8000/classify-item/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -199,7 +303,7 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         const modelImageUrl = localStorage.getItem('modelImageUrl');
 
         if (modelImageUrl) { // Only proceed if modelImageUrl exists
-            const processResponse = await fetch(`${backendUrl}/process-image/`, {
+            const processResponse = await fetch(`http://localhost:8000/process-image/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -226,7 +330,8 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
     }
 });
 
+
 // Fetch the item details when the page loads
-window.addEventListener('load', fetchItemDetails);
+// window.addEventListener('load', fetchItemDetails);
 
 // run by git bash terminal : ./start.sh to run the server

@@ -1,3 +1,6 @@
+import tempfile
+from datetime import datetime
+
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,28 +10,18 @@ from model_processor import ModelProcessor
 from scrapers.scraper_factory import ScraperFactory
 from detection.person_detector import save_first_image_without_person
 from classification.clothes_classifier import ClothesClassifier
-from azure.storage.blob import BlobServiceClient
+# from azure.storage.blob import BlobServiceClient
 from uuid import uuid4
+import requests
+from pathlib import Path
 
-connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-if connect_str is None:
-    raise ValueError("AZURE_STORAGE_CONNECTION_STRING environment variable is not set")
-
-blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-container_name = "mycontainer"
-container_client = blob_service_client.get_container_client(container_name)
-
-
-def upload_test_file(file_path, blob_name):
-    try:
-        blob_client = container_client.get_blob_client(blob_name)
-        with open(file_path, "rb") as data:
-            blob_client.upload_blob(data, overwrite=True)
-        print(f"Upload successful: {blob_client.url}")
-        return blob_client.url
-    except Exception as e:
-        print(f"Failed to upload file: {e}")
-
+# connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+# if connect_str is None:
+#     raise ValueError("AZURE_STORAGE_CONNECTION_STRING environment variable is not set")
+#
+# blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+# container_name = "mycontainer"
+# container_client = blob_service_client.get_container_client(container_name)
 
 app = FastAPI()
 
@@ -45,6 +38,7 @@ app.add_middleware(
 backend_dir = os.path.abspath(os.path.dirname(__file__))  # Absolute path to the backend directory
 base_directory = os.path.join(backend_dir, "scrapers/scraped_images")  # Path for scraped images
 save_directory = os.path.join(backend_dir, "garmentsImages")  # Path for garment images
+model_directory = os.path.join(backend_dir, "modelsImages")  # Path for model images
 
 # Get the absolute path to the frontend directory
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
@@ -66,17 +60,59 @@ class ProcessRequest(BaseModel):
     category: str
 
 
+class DownloadModelImageRequest(BaseModel):
+    image_url: str
+
+
+@app.get("/test-message/")
+def get_test_message():
+    return {"message": "Test message: Image upload was successful!"}
+
+
+@app.post("/download-model-image/")
+async def download_model_image(request: DownloadModelImageRequest):
+    try:
+        print("Received request:", request)
+
+        image_url = request.image_url
+
+        # Generate a unique filename based on the URL
+        file_extension = os.path.splitext(image_url)[1]
+        unique_filename = f"{uuid4()}{file_extension}"
+
+        # Ensure the directory exists
+        Path(model_directory).mkdir(parents=True, exist_ok=True)
+        file_path = os.path.join(model_directory, unique_filename)
+
+        # Download the image from the URL
+        response = requests.get(image_url)
+        response.raise_for_status()  # Check for any HTTP errors
+        with open(file_path, "wb") as image_file:
+            image_file.write(response.content)
+
+        return {"message": f"Image downloaded successfully to {file_path}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/upload-model-image/")
 async def upload_model_image(file: UploadFile = File(...)):
+    print(f"Received file: {file.filename}")
+
     try:
         # Generate a unique filename
         file_extension = os.path.splitext(file.filename)[1]
-        unique_filename = f"{uuid4()}{file_extension}"
+        current_time = datetime.now().strftime("%Y_%m_%d-%H_%M")
+        unique_filename = f"model_image-{current_time}{file_extension}"
 
-        # Upload the file directly to Azure Blob Storage
-        blob_url = upload_test_file(file.file, unique_filename)
+        # Save the uploaded file to the local filesystem
+        file_path = os.path.join(model_directory, unique_filename)
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
 
-        return {"model_image_url": blob_url}
+        print(f"File saved to: \n{file_path}")
+
+        return {"model_image_url": file_path}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
