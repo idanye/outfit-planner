@@ -15,7 +15,9 @@
     "identity",
     "activeTab",
     "storage",
-    "tabs"
+    "cookies",
+    "tabs",
+    "https://accounts.google.com/*"
   ],
   "host_permissions": [
     "*://*.zara.com/*"

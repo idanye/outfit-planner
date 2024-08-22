@@ -25,9 +25,6 @@ function signInWithGoogle() {
             localStorage.setItem('userEmail', userInfo.email);
             localStorage.setItem('userImage', userInfo.picture);
 
-            print("user name: " + firstName);
-            print("user email: " + userInfo.email);
-
             // Update UI to display user info
             document.getElementById('user-name').textContent = firstName;
             document.getElementById('user-image').src = userInfo.picture;
@@ -59,29 +56,53 @@ function signOut() {
     const confirmSignOut = confirm("Are you sure you want to sign out?");
     
     if (confirmSignOut) {
-        chrome.identity.clearAllCachedAuthTokens(() => {
-        // Clear local storage
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userImage');
-        localStorage.removeItem('modelImageUrl');
+        chrome.identity.getAuthToken({interactive: false}, function(token) {
+            if (token) {
+                // Revoke the token on Google's server
+                fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
+                    .then(() => {
+                        console.log('Token revoked at Google server');
 
-        // Reset UI
-        document.getElementById('user-info').style.display = 'none';
-        document.getElementById('input-section').style.display = 'none';
-        document.getElementById('item-section').style.display = 'none';
-        document.getElementById('result-section').style.display = 'none';
-        document.getElementById('signin-section').style.display = 'block'; // Show sign-in section but not trigger sign-in flow
+                        // Clear the cached token
+                        chrome.identity.removeCachedAuthToken({token: token}, function() {
+                            console.log('Token removed from cache');
+
+                            // Clear all cached tokens
+                            chrome.identity.clearAllCachedAuthTokens(() => {
+                                console.log('All tokens cleared');
+
+                                // Remove the g_state cookie to reset exponential backoff
+                                chrome.cookies.remove({
+                                    url: "https://accounts.google.com",
+                                    name: "g_state"
+                                }, function(details) {
+                                    if (details) {
+                                        console.log('g_state cookie removed:', details);
+                                    } else {
+                                        console.error('Failed to remove g_state cookie');
+                                    }
+                                });
+
+                                // Clear local storage
+                                localStorage.removeItem('userName');
+                                localStorage.removeItem('userEmail');
+                                localStorage.removeItem('userImage');
+                                localStorage.removeItem('modelImageUrl');
+
+                                // Reset UI
+                                document.getElementById('user-info').style.display = 'none';
+                                document.getElementById('input-section').style.display = 'none';
+                                document.getElementById('item-section').style.display = 'none';
+                                document.getElementById('result-section').style.display = 'none';
+                                document.getElementById('signin-section').style.display = 'block'; // Show sign-in section
+                            });
+                        });
+                    })
+                    .catch(error => console.error('Error revoking token:', error));
+            }
         });
-
-        // print("user name after: " + firstName);
-        print("user email after: " + userInfo.email);
-        
     }
 }
-
-/// Attach event listener to user image for sign-out
-// document.getElementById('user-image').addEventListener('click', signOut);
 
 // Check if the user is already signed in when the page loads
 window.addEventListener('load', function() {
