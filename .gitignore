@@ -9,3 +9,5 @@ backend/classification/__pycache__/
 *.pyc
 .env
 /backend/env
+/.github/
+/.vscode/
