@@ -1,7 +1,7 @@
 import tempfile
 from datetime import datetime
-
 from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi.openapi.models import Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -121,7 +121,7 @@ async def upload_model_image(file: UploadFile = File(...)):
 def scrape_images(request: ScrapeRequest):
     scraper = ScraperFactory.get_scraper(request.url)
 
-    print(f"Base directory: {base_directory}")
+    # print(f"Base directory: {base_directory}")
 
     # Call the scraper function and ensure it returns an absolute path
     relative_saved_directory, item_name = scraper.scrape_images(request.url, base_directory)
@@ -132,7 +132,17 @@ def scrape_images(request: ScrapeRequest):
     # print(f"Saved directory path before processing: {saved_directory}")  # Debugging line
 
     garment_image_path = save_first_image_without_person(saved_directory, save_directory)
-    return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": garment_image_path}
+
+    # Serve the image as a binary response
+    if os.path.exists(garment_image_path):
+        with open(garment_image_path, "rb") as image_file:
+            image_data = image_file.read()
+        return {"saved_directory": saved_directory, "item_name": item_name,
+                "garment_image_path": Response(content=image_data, media_type="image/jpeg")}
+    else:
+        return {"error": "Image not found"}
+
+    # return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": garment_image_path}
 
 
 @app.post("/classify-item/")

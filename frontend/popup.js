@@ -229,31 +229,31 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
 
 
 // Function to send the model image URL to the backend
-async function sendModelImageUrlToBackend(imageUrl) {
-    try {
-        console.log("Sending image URL to backend:", imageUrl);  // Debugging log
-
-        const response = await fetch(`http://localhost:8000/download-model-image/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ image_url: imageUrl })
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            document.getElementById('upload-feedback').textContent = result.message;
-        } else {
-            const errorText = await response.text();
-            document.getElementById('upload-feedback').textContent = `Error downloading image: ${errorText}`;
-            console.error(`Error response: ${errorText}`);
-        }
-    } catch (error) {
-        document.getElementById('upload-feedback').textContent = `Error downloading image: ${error.message}`;
-        console.error('Download error:', error);
-    }
-}
+// async function sendModelImageUrlToBackend(imageUrl) {
+//     try {
+//         console.log("Sending image URL to backend:", imageUrl);  // Debugging log
+//
+//         const response = await fetch(`http://localhost:8000/download-model-image/`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({ image_url: imageUrl })
+//         });
+//
+//         if (response.ok) {
+//             const result = await response.json();
+//             document.getElementById('upload-feedback').textContent = result.message;
+//         } else {
+//             const errorText = await response.text();
+//             document.getElementById('upload-feedback').textContent = `Error downloading image: ${errorText}`;
+//             console.error(`Error response: ${errorText}`);
+//         }
+//     } catch (error) {
+//         document.getElementById('upload-feedback').textContent = `Error downloading image: ${error.message}`;
+//         console.error('Download error:', error);
+//     }
+// }
 
 
 // Fetch item details from the API and display them
