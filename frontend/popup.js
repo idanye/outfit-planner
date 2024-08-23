@@ -1,5 +1,24 @@
 // const backendUrl = 'https://fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
 
+// Function to show a specific section and save it to localStorage
+function showSection(sectionId) {
+    // Hide all sections first
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.style.display = 'none');
+
+    // Hide all sections
+    // document.getElementById('signin-section').style.display = 'none';
+    // document.getElementById('input-section').style.display = 'none';
+    // document.getElementById('item-section').style.display = 'none';
+    // document.getElementById('result-section').style.display = 'none';
+
+    // Show the selected section
+    document.getElementById(sectionId).style.display = 'block';
+
+    // Save the current section to localStorage
+    localStorage.setItem('currentSection', sectionId);
+}
+
 // Function to handle Google sign-in using Chrome Identity API
 function signInWithGoogle() {
     chrome.identity.getAuthToken({ interactive: true }, function(token) {
@@ -24,9 +43,6 @@ function signInWithGoogle() {
             localStorage.setItem('userName', firstName);
             localStorage.setItem('userEmail', userInfo.email);
             localStorage.setItem('userImage', userInfo.picture);
-
-            print("user name: " + firstName);
-            print("user email: " + userInfo.email);
 
             // Update UI to display user info
             document.getElementById('user-name').textContent = firstName;
@@ -59,50 +75,100 @@ function signOut() {
     const confirmSignOut = confirm("Are you sure you want to sign out?");
     
     if (confirmSignOut) {
-        chrome.identity.clearAllCachedAuthTokens(() => {
-        // Clear local storage
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userImage');
-        localStorage.removeItem('modelImageUrl');
+        chrome.identity.getAuthToken({interactive: false}, function(token) {
+            if (token) {
+                // Revoke the token on Google's server
+                fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
+                    .then(() => {
+                        console.log('Token revoked at Google server');
 
-        // Reset UI
-        document.getElementById('user-info').style.display = 'none';
-        document.getElementById('input-section').style.display = 'none';
-        document.getElementById('item-section').style.display = 'none';
-        document.getElementById('result-section').style.display = 'none';
-        document.getElementById('signin-section').style.display = 'block'; // Show sign-in section but not trigger sign-in flow
+                        // Clear the cached token
+                        chrome.identity.removeCachedAuthToken({token: token}, function() {
+                            console.log('Token removed from cache');
+
+                            // Clear all cached tokens
+                            chrome.identity.clearAllCachedAuthTokens(() => {
+                                console.log('All tokens cleared');
+
+                                // Remove the g_state cookie to reset exponential backoff
+                                chrome.cookies.remove({
+                                    url: "https://accounts.google.com",
+                                    name: "g_state"
+                                }, function(details) {
+                                    if (details) {
+                                        console.log('g_state cookie removed:', details);
+                                    } else {
+                                        console.error('Failed to remove g_state cookie');
+                                    }
+                                });
+
+                                // Clear local storage
+                                localStorage.removeItem('userName');
+                                localStorage.removeItem('userEmail');
+                                localStorage.removeItem('userImage');
+                                localStorage.removeItem('modelImageUrl');
+
+                                // Reset UI and Update UI to display sign-in section
+                                showSection('signin-section');
+                                document.getElementById('user-info').style.display = 'none';
+                                // document.getElementById('user-info').style.display = 'none';
+                                // document.getElementById('input-section').style.display = 'none';
+                                // document.getElementById('item-section').style.display = 'none';
+                                // document.getElementById('result-section').style.display = 'none';
+                                //document.getElementById('signin-section').style.display = 'block'; // Show sign-in section
+                            });
+                        });
+                    })
+                    .catch(error => console.error('Error revoking token:', error));
+            }
         });
-
-        // print("user name after: " + firstName);
-        print("user email after: " + userInfo.email);
-        
     }
 }
 
-/// Attach event listener to user image for sign-out
-// document.getElementById('user-image').addEventListener('click', signOut);
-
 // Check if the user is already signed in when the page loads
 window.addEventListener('load', function() {
+    const savedSection = localStorage.getItem('currentSection');
+    const modelImageUrl = localStorage.getItem('modelImageUrl');
+    
+    // Log the values of savedSection
+    console.log('Saved Section:', savedSection);
+
+    // If there's a saved section, display it; otherwise, default to sign-in
+    // if (savedSection) {
+    //     showSection(savedSection);
+    // } else {
+    //     showSection('signin-section');
+    // }
+
     const userName = localStorage.getItem('userName');
     const userImage = localStorage.getItem('userImage');
-    const modelImageUrl = localStorage.getItem('modelImageUrl');
+    // const modelImageUrl = localStorage.getItem('modelImageUrl');
 
     if (userName && userImage) {
+        showSection('input-section');
         document.getElementById('user-name').textContent = userName;
         document.getElementById('user-image').src = userImage;
         document.getElementById('user-info').style.display = 'flex';
-        document.getElementById('input-section').style.display = 'block';
+        
+        // If no model image URL is present, show the input section
+        // if (!modelImageUrl) {
+        //     showSection('input-section');
+        // }
+
+    // this block ensures that the right section will be shown even if the window reloads
+    if (savedSection) {
+        showSection(savedSection);
+    } else {
+        showSection('signin-section');
+    }
 
         // Only run the APIs if the model image is saved
         // if (modelImageUrl) {
         //     fetchItemDetails();
         // }
     } else {
-        document.getElementById('input-section').style.display = 'none';
-        // Automatically sign in if not signed in
-        // signInWithGoogle();
+        // document.getElementById('input-section').style.display = 'none';
+        // document.getElementById('signin-section').style.display = 'block'; // Show sign-in section if user is not signed in
     }
 });
 
@@ -142,14 +208,16 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
             window.localStorage.setItem('modelImageUrl', result.model_image_url);
 
             document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
-            document.getElementById('upload-feedback').style.display = 'block';
+            showSection('item-section');
+            // document.getElementById('upload-feedback').style.display = 'block';
 
             // Hide input section and show item details section
-            document.getElementById('input-section').style.display = 'none';
-            document.getElementById('item-section').style.display = 'block';
+            // document.getElementById('input-section').style.display = 'none';
+            // document.getElementById('item-section').style.display = 'block';
 
             // Now fetch item details since the model image has been uploaded
             await fetchItemDetails();
+            
         } else {
             const errorText = await response.text(); // Get error details from the response
             document.getElementById('upload-feedback').textContent = `Error uploading model image: ${errorText}`;
@@ -265,7 +333,7 @@ async function fetchItemDetails() {
     function showNothingToDisplay() {
         document.getElementById('item-name').textContent = "Nothing to display";
         document.getElementById('item-image').style.display = 'none';
-        document.getElementById('show-result-btn').style.display = 'none';
+        document.getElementById('show-result-btn').style.display = 'block';
     }
 
     // Helper function to show the loading icon
@@ -318,7 +386,8 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
             if (processResponse.ok) {
                 const result = await processResponse.json();
                 document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
-                document.getElementById('result-section').style.display = 'block';
+                showSection('result-section');
+                // document.getElementById('result-section').style.display = 'block';
             } else {
                 console.error('Error processing image');
             }
