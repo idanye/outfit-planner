@@ -162,6 +162,19 @@ window.addEventListener('load', function() {
             showSection('result-section');
         }
 
+        const itemImageElement = document.getElementById('item-image');
+        
+        // handle the case where the item-image element does not exist
+        if (itemImageElement.value == undefined) {
+            document.getElementById('show-result-btn').style.display = 'none';
+            document.getElementById('item-image').style.display = 'none';
+            document.getElementById('item-name').textContent = "Nothing to display";
+            console.log('item-image element does not exists');
+        } else {
+            console.log('item-image element exist');
+        }
+
+
     } else {
 
     }
@@ -279,6 +292,7 @@ async function fetchItemDetails() {
             console.log('Not a Zara URL');
             hideLoadingIcon();
             showNothingToDisplay();
+            // document.getElementById('show-result-btn').style.display = 'none';
             return;
         }
 
@@ -328,7 +342,7 @@ async function fetchItemDetails() {
     function showNothingToDisplay() {
         document.getElementById('item-name').textContent = "Nothing to display";
         document.getElementById('item-image').style.display = 'none';
-        document.getElementById('show-result-btn').style.display = 'block';
+        document.getElementById('show-result-btn').style.display = 'none';
     }
 
     // Helper function to show the loading icon
