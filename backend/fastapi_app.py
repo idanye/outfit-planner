@@ -106,6 +106,8 @@ async def upload_model_image(file: UploadFile = File(...)):
 
 @app.post("/scrape-images/")
 def scrape_images(request: ScrapeRequest):
+    print("scrape_images function started")
+
     scraper = ScraperFactory.get_scraper(request.url)
 
     # Call the scraper function and ensure it returns an absolute path
@@ -120,11 +122,13 @@ def scrape_images(request: ScrapeRequest):
     if os.path.exists(garment_image_path):
         # Create a URL that the frontend can use to access the image
         image_url = f"/garments-images/{os.path.basename(garment_image_path)}"
-        print(f"saved_directory: {saved_directory}, item_name: {item_name}, garment_image_path: {image_url}")
+        print(f"scrape_images function returning: saved_directory: {saved_directory}, item_name: {item_name}, garment_image_path: {image_url}")
+
         return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": image_url}
     else:
+        print("scrape_images function: No image found")
         # Return an error message if no image is found
-        return {"error": "No image without a person was found. Please try again later."}
+        return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": None}
 
 
 @app.post("/classify-item/")
@@ -137,11 +141,17 @@ def classify_item(request: ClassifyRequest):
 
 @app.post("/process-image/")
 def process_image(request: ProcessRequest):
+    print("process_image function started")
+
     try:
         print(f"Model image path: {request.model_image_path}", f"Garment image path: {request.garment_image_path}")
         ModelProcessor.process_image(request.model_image_path, request.garment_image_path, request.category)
+        print("process_image function: Image processed successfully")
+
         return {"message": "Image processed successfully"}
     except Exception as e:
+        print(f"process_image function error: {str(e)}")
+
         raise HTTPException(status_code=500, detail=str(e))
 
 

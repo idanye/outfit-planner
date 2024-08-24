@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # directory = os.path.join(backend_dir, "scrapers", "scraped_images", "iloveimg-resized")
     # print(f"Absolute directory path: {directory}")
 
-    directory = "../scrapers/scraped_images/zara_images_2024_06_16-17_01"
+    directory = "../scrapers/scraped_images/zara_images_2024_08_24-21_16"
     image_path = save_first_image_without_person(directory)
-    print(f"The new location of the image: {image_path}")
+    # print(f"The new location of the image: {image_path}")
     # print(os.chdir('/absolute/path/to/backend'))

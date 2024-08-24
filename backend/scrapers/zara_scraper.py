@@ -112,7 +112,6 @@ class ZaraScraper(BaseScraper):
             # Close the driver
             self.driver.quit()
 
-
     def download_image(self, url, save_path):
         try:
             response = requests.get(url, stream=True)
