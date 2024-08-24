@@ -1,4 +1,6 @@
 import shutil
+from datetime import datetime
+
 import cv2
 import numpy as np
 import os
@@ -90,10 +92,19 @@ def save_first_image_without_person(directory, save_directory="../garmentsImages
 
     if result:
         print(f"The first image without a person is: {result}")
-        copied_file_path = shutil.copy(result, save_directory)
+
+        # Generate the timestamp-based filename
+        timestamp = datetime.now().strftime("%Y_%m_%d-%H_%M")
+        filename = f"garment_image-{timestamp}.jpg"
+        save_path = os.path.join(save_directory, filename)
+
+        copied_file_path = shutil.copy(result, save_path)
+        print(f"Image saved as: {copied_file_path}")
+
         return copied_file_path
     else:
         print("No image without a person was found.")
+        return None
 
 
 # Example usage

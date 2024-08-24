@@ -1,16 +1,9 @@
-// const backendUrl = 'https://fastapi-gwc8fxewc8dheufx.eastus-01.azurewebsites.net';
 
 // Function to show a specific section and save it to localStorage
 function showSection(sectionId) {
     // Hide all sections first
     const sections = document.querySelectorAll('.section');
     sections.forEach(section => section.style.display = 'none');
-
-    // Hide all sections
-    // document.getElementById('signin-section').style.display = 'none';
-    // document.getElementById('input-section').style.display = 'none';
-    // document.getElementById('item-section').style.display = 'none';
-    // document.getElementById('result-section').style.display = 'none';
 
     // Show the selected section
     document.getElementById(sectionId).style.display = 'block';
@@ -125,21 +118,20 @@ function signOut() {
     }
 }
 
+// Function to check the current page and fetch item details
+function checkCurrentPageAndFetchDetails() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const currentUrl = tabs[0].url;
+        console.log('Checking the current URL:', currentUrl);
+
+        // Your existing fetchItemDetails logic to validate and fetch item details
+        fetchItemDetails(currentUrl);
+    });
+}
+
 // Check if the user is already signed in when the page loads
 window.addEventListener('load', function() {
     const savedSection = localStorage.getItem('currentSection');
-    const modelImageUrl = localStorage.getItem('modelImageUrl');
-    
-    // Log the values of savedSection
-    console.log('Saved Section:', savedSection);
-
-    // If there's a saved section, display it; otherwise, default to sign-in
-    if (savedSection) {
-        showSection(savedSection);
-    } else {
-        showSection('signin-section');
-    }
-
     const userName = localStorage.getItem('userName');
     const userImage = localStorage.getItem('userImage');
 
@@ -147,36 +139,48 @@ window.addEventListener('load', function() {
     console.log('user image: ', userImage);
     // const modelImageUrl = localStorage.getItem('modelImageUrl');
 
+    // Log the values of savedSection
+    console.log('Saved Section:', savedSection);
+
+    // // If there's a saved section, display it; otherwise, default to sign-in
+    // if (savedSection) {
+    //     showSection(savedSection);
+    // } else {
+    //     showSection('signin-section');
+    // }
+
     if (userName && userImage) {
         showSection('input-section');
 
         document.getElementById('user-name').textContent = userName;
         document.getElementById('user-image').src = userImage;
         document.getElementById('user-info').style.display = 'flex';
-        
-        if (savedSection === 'item-section') {
-            showSection('item-section');
-        }
+        // Check the current page and fetch item details if applicable
+        checkCurrentPageAndFetchDetails();
 
-        if (savedSection === 'result-section') {
-            showSection('result-section');
-        }
-
-        const itemImageElement = document.getElementById('item-image');
-        
-        // handle the case where the item-image element does not exist
-        if (itemImageElement.value == undefined) {
-            document.getElementById('show-result-btn').style.display = 'none';
-            document.getElementById('item-image').style.display = 'none';
-            document.getElementById('item-name').textContent = "Nothing to display";
-            console.log('item-image element does not exists');
-        } else {
-            console.log('item-image element exist');
-        }
-
-
+        // if (savedSection === 'item-section') {
+        //     showSection('item-section');
+        // }
+        //
+        // if (savedSection === 'result-section') {
+        //     showSection('result-section');
+        // }
+        //
+        // const itemImageElement = document.getElementById('item-image');
+        //
+        // // handle the case where the item-image element does not exist
+        // if (itemImageElement.value === undefined) {
+        //     document.getElementById('show-result-btn').style.display = 'none';
+        //     document.getElementById('item-image').style.display = 'none';
+        //     document.getElementById('item-name').textContent = "Nothing to display";
+        //     console.log('item-image element does not exists');
+        // } else {
+        //     console.log('item-image element exist');
+        // }
+        //
     } else {
-
+        // If not signed in, show the sign-in section
+        showSection('signin-section');
     }
 });
 
@@ -224,8 +228,7 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
             // document.getElementById('item-section').style.display = 'block';
 
             // Now fetch item details since the model image has been uploaded
-            await fetchItemDetails();
-            
+            checkCurrentPageAndFetchDetails();
         } else {
             const errorText = await response.text(); // Get error details from the response
             document.getElementById('upload-feedback').textContent = `Error uploading model image: ${errorText}`;
@@ -241,102 +244,81 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
 });
 
 
-// Function to send the model image URL to the backend
-// async function sendModelImageUrlToBackend(imageUrl) {
-//     try {
-//         console.log("Sending image URL to backend:", imageUrl);  // Debugging log
-//
-//         const response = await fetch(`http://localhost:8000/download-model-image/`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({ image_url: imageUrl })
-//         });
-//
-//         if (response.ok) {
-//             const result = await response.json();
-//             document.getElementById('upload-feedback').textContent = result.message;
-//         } else {
-//             const errorText = await response.text();
-//             document.getElementById('upload-feedback').textContent = `Error downloading image: ${errorText}`;
-//             console.error(`Error response: ${errorText}`);
-//         }
-//     } catch (error) {
-//         document.getElementById('upload-feedback').textContent = `Error downloading image: ${error.message}`;
-//         console.error('Download error:', error);
-//     }
-// }
-
-
 // Fetch item details from the API and display them
-async function fetchItemDetails() {
-    // Get the current active tab's URL
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        const currentUrl = tabs[0].url;
-        console.log('Current URL:', currentUrl);
+async function fetchItemDetails(currentUrl) {
+    // Show loading icon
+    showLoadingIcon();
 
-        // Show loading icon
-        showLoadingIcon();
+    // Create a URL object from the current URL
+    const urlObject = new URL(currentUrl);
+    // Log the pathname for debugging
+    const pathName = urlObject.pathname;
+    // console.log('Pathname:', pathName);
 
-        // Create a URL object from the current URL
-        const urlObject = new URL(currentUrl);
+    // 1. Check if the URL starts with https://www.zara.com/
+    const domainRegex = /^https:\/\/www\.zara\.com\//;
+    if (!domainRegex.test(currentUrl)) {
+        console.log('Not a Zara URL');
+        hideLoadingIcon();
+        showNothingToDisplay();
+        return;
+    }
 
-        // Log the pathname for debugging
-        const pathName = urlObject.pathname;
-        console.log('Pathname:', pathName);
+    // 2. Extract the pathname and check if it contains "/p" followed by digits (product ID)
+    const productPathRegex = /-p\d{8}\.html$/;
+    if (!productPathRegex.test(pathName)) {
+        console.log('Url does not contain product path');
+        hideLoadingIcon();
+        showNothingToDisplay();
+        return;
+    }
 
-        // 1. Check if the URL starts with https://www.zara.com/
-        const domainRegex = /^https:\/\/www\.zara\.com\//;
-        if (!domainRegex.test(currentUrl)) {
-            console.log('Not a Zara URL');
-            hideLoadingIcon();
-            showNothingToDisplay();
-            // document.getElementById('show-result-btn').style.display = 'none';
-            return;
-        }
+    // 3. Check if the query parameters contain v1 and v2 with numeric values
+    const v1 = urlObject.searchParams.get("v1");
+    const v2 = urlObject.searchParams.get("v2");
 
-        // 2. Extract the pathname and check if it contains "/p" followed by digits (product ID)
-        const productPathRegex = /-p\d{8}\.html$/;
-        if (!productPathRegex.test(pathName)) {
-            console.log('Url does not contain product path');
-            hideLoadingIcon();
-            showNothingToDisplay();
-            return;
-        }
+    if (!v1 || !v2 || isNaN(v1) || isNaN(v2)) {
+        console.log('URL does not contain valid v1 and v2 parameters');
+        hideLoadingIcon();
+        showNothingToDisplay();
+        return;
+    }
 
-        // 3. Check if the query parameters contain v1 and v2 with numeric values
-        const v1 = urlObject.searchParams.get("v1");
-        const v2 = urlObject.searchParams.get("v2");
-
-        if (!v1 || !v2 || isNaN(v1) || isNaN(v2)) {
-            console.log('URL does not contain valid v1 and v2 parameters');
-            hideLoadingIcon();
-            showNothingToDisplay();
-            return;
-        }
-
-        // If all validations pass, make the API request
-        fetch(`http://localhost:8000/scrape-images/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({url: currentUrl})
+    // If all validations pass, make the API request
+    fetch(`http://localhost:8000/scrape-images/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({url: currentUrl})
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
         })
-            .then(response => response.json())
+        .then(result => {
+            hideLoadingIcon();
 
-            .then(result => {
-                hideLoadingIcon();
+            if (result.error) {
+                // If there's an error, display the error message to the user
+                document.getElementById('item-name').textContent = result.error;
+                document.getElementById('item-image').style.display = 'none';
+                document.getElementById('show-result-btn').style.display = 'none';
+            } else {
+                // Display the item details and image
                 document.getElementById('item-name').textContent = result.item_name;
-                document.getElementById('item-image').src = result.garment_image_path;
+                document.getElementById('item-image').src = `http://localhost:8000${result.garment_image_path}`;
                 document.getElementById('item-image').style.display = 'block';
                 document.getElementById('show-result-btn').style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error fetching item details:', error);
-            });
-    });
+            }
+        })
+        .catch(error => {
+            hideLoadingIcon();
+            console.error('Error fetching item details:', error);
+            showNothingToDisplay();
+        });
 
     // Helper function to show "Nothing to display" message
     function showNothingToDisplay() {
@@ -376,40 +358,38 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         const classifyResult = await response.json();
         const category = classifyResult.category;
 
-        // Retrieve the stored Blob URL
-        const modelImageUrl = localStorage.getItem('modelImageUrl');
+        console.log('Classified category:', category);
 
-        if (modelImageUrl) { // Only proceed if modelImageUrl exists
-            const processResponse = await fetch(`http://localhost:8000/process-image/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model_image_path: modelImageUrl,
-                    garment_image_path: garmentImagePath,
-                    category: category
-                })
-            });
-
-            if (processResponse.ok) {
-                const result = await processResponse.json();
-                document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
-                showSection('result-section');
-                // document.getElementById('result-section').style.display = 'block';
-            } else {
-                console.error('Error processing image');
-            }
-        } else {
-            console.error('Model image URL not found. Skipping image processing.');
-        }
+        // // Retrieve the stored Blob URL
+        // const modelImageUrl = localStorage.getItem('modelImageUrl');
+        //
+        // if (modelImageUrl) { // Only proceed if modelImageUrl exists
+        //     const processResponse = await fetch(`http://localhost:8000/process-image/`, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({
+        //             model_image_path: modelImageUrl,
+        //             garment_image_path: garmentImagePath,
+        //             category: category
+        //         })
+        //     });
+        //
+        //     if (processResponse.ok) {
+        //         const result = await processResponse.json();
+        //         document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
+        //         showSection('result-section');
+        //         // document.getElementById('result-section').style.display = 'block';
+        //     } else {
+        //         console.error('Error processing image');
+        //     }
+        // } else {
+        //     console.error('Model image URL not found. Skipping image processing.');
+        // }
     } else {
         console.error('Error classifying item');
     }
 });
-
-
-// Fetch the item details when the page loads
-// window.addEventListener('load', fetchItemDetails);
 
 // run by git bash terminal : ./start.sh to run the server

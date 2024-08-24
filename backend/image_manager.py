@@ -1,7 +1,3 @@
-from gradio_client import Client, file
-import requests
-from PIL import Image
-from io import BytesIO
 import shutil
 import os
 

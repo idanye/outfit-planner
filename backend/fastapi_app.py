@@ -1,7 +1,5 @@
-import tempfile
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, File, UploadFile
-from fastapi.openapi.models import Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -14,14 +12,6 @@ from classification.clothes_classifier import ClothesClassifier
 from uuid import uuid4
 import requests
 from pathlib import Path
-
-# connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
-# if connect_str is None:
-#     raise ValueError("AZURE_STORAGE_CONNECTION_STRING environment variable is not set")
-#
-# blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-# container_name = "mycontainer"
-# container_client = blob_service_client.get_container_client(container_name)
 
 app = FastAPI()
 
@@ -43,7 +33,8 @@ model_directory = os.path.join(backend_dir, "modelsImages")  # Path for model im
 # Get the absolute path to the frontend directory
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
 
-app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+# Serve model images from the "garmentsImages" directory
+app.mount("/garments-images", StaticFiles(directory=save_directory), name="garments-images")
 
 
 class ScrapeRequest(BaseModel):
@@ -60,39 +51,35 @@ class ProcessRequest(BaseModel):
     category: str
 
 
-class DownloadModelImageRequest(BaseModel):
-    image_url: str
+# @app.get("/test-message/")
+# def get_test_message():
+#     return {"message": "Test message: Image upload was successful!"}
 
 
-@app.get("/test-message/")
-def get_test_message():
-    return {"message": "Test message: Image upload was successful!"}
-
-
-@app.post("/download-model-image/")
-async def download_model_image(request: DownloadModelImageRequest):
-    try:
-        print("Received request:", request)
-
-        image_url = request.image_url
-
-        # Generate a unique filename based on the URL
-        file_extension = os.path.splitext(image_url)[1]
-        unique_filename = f"{uuid4()}{file_extension}"
-
-        # Ensure the directory exists
-        Path(model_directory).mkdir(parents=True, exist_ok=True)
-        file_path = os.path.join(model_directory, unique_filename)
-
-        # Download the image from the URL
-        response = requests.get(image_url)
-        response.raise_for_status()  # Check for any HTTP errors
-        with open(file_path, "wb") as image_file:
-            image_file.write(response.content)
-
-        return {"message": f"Image downloaded successfully to {file_path}"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# @app.post("/download-model-image/")
+# async def download_model_image(request: DownloadModelImageRequest):
+#     try:
+#         print("Received request:", request)
+#
+#         image_url = request.image_url
+#
+#         # Generate a unique filename based on the URL
+#         file_extension = os.path.splitext(image_url)[1]
+#         unique_filename = f"{uuid4()}{file_extension}"
+#
+#         # Ensure the directory exists
+#         Path(model_directory).mkdir(parents=True, exist_ok=True)
+#         file_path = os.path.join(model_directory, unique_filename)
+#
+#         # Download the image from the URL
+#         response = requests.get(image_url)
+#         response.raise_for_status()  # Check for any HTTP errors
+#         with open(file_path, "wb") as image_file:
+#             image_file.write(response.content)
+#
+#         return {"message": f"Image downloaded successfully to {file_path}"}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/upload-model-image/")
@@ -121,28 +108,23 @@ async def upload_model_image(file: UploadFile = File(...)):
 def scrape_images(request: ScrapeRequest):
     scraper = ScraperFactory.get_scraper(request.url)
 
-    # print(f"Base directory: {base_directory}")
-
     # Call the scraper function and ensure it returns an absolute path
     relative_saved_directory, item_name = scraper.scrape_images(request.url, base_directory)
     # print(f"Relative saved directory: {relative_saved_directory}")  # Debugging line
-
     saved_directory = os.path.join(base_directory, relative_saved_directory)  # Ensure full path
-
     # print(f"Saved directory path before processing: {saved_directory}")  # Debugging line
 
     garment_image_path = save_first_image_without_person(saved_directory, save_directory)
 
-    # Serve the image as a binary response
+    # Ensure the image file exists
     if os.path.exists(garment_image_path):
-        with open(garment_image_path, "rb") as image_file:
-            image_data = image_file.read()
-        return {"saved_directory": saved_directory, "item_name": item_name,
-                "garment_image_path": Response(content=image_data, media_type="image/jpeg")}
+        # Create a URL that the frontend can use to access the image
+        image_url = f"/garments-images/{os.path.basename(garment_image_path)}"
+        print(f"saved_directory: {saved_directory}, item_name: {item_name}, garment_image_path: {image_url}")
+        return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": image_url}
     else:
-        return {"error": "Image not found"}
-
-    # return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": garment_image_path}
+        # Return an error message if no image is found
+        return {"error": "No image without a person was found. Please try again later."}
 
 
 @app.post("/classify-item/")

@@ -20,7 +20,8 @@
   ],
   "host_permissions": [
     "*://*.zara.com/*",
-    "https://accounts.google.com/*"
+    "https://accounts.google.com/*",
+    "http://localhost:8000/*"
   ],
   "oauth2": {
     "client_id": "360989864479-0911fj4807hlrb906sukup7pje0sgmjb.apps.googleusercontent.com",
