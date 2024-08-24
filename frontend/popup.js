@@ -149,11 +149,6 @@ window.addEventListener('load', function() {
         document.getElementById('user-name').textContent = userName;
         document.getElementById('user-image').src = userImage;
         document.getElementById('user-info').style.display = 'flex';
-        
-        // If no model image URL is present, show the input section
-        // if (!modelImageUrl) {
-        //     showSection('input-section');
-        // }
 
     // this block ensures that the right section will be shown even if the window reloads
     if (savedSection) {
@@ -161,7 +156,6 @@ window.addEventListener('load', function() {
     } else {
         showSection('signin-section');
     }
-
         // Only run the APIs if the model image is saved
         // if (modelImageUrl) {
         //     fetchItemDetails();
@@ -398,9 +392,5 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         console.error('Error classifying item');
     }
 });
-
-
-// Fetch the item details when the page loads
-// window.addEventListener('load', fetchItemDetails);
 
 // run by git bash terminal : ./start.sh to run the server
