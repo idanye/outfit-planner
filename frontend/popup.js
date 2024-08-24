@@ -134,35 +134,36 @@ window.addEventListener('load', function() {
     console.log('Saved Section:', savedSection);
 
     // If there's a saved section, display it; otherwise, default to sign-in
-    // if (savedSection) {
-    //     showSection(savedSection);
-    // } else {
-    //     showSection('signin-section');
-    // }
-
-    const userName = localStorage.getItem('userName');
-    const userImage = localStorage.getItem('userImage');
-    // const modelImageUrl = localStorage.getItem('modelImageUrl');
-
-    if (userName && userImage) {
-        showSection('input-section');
-        document.getElementById('user-name').textContent = userName;
-        document.getElementById('user-image').src = userImage;
-        document.getElementById('user-info').style.display = 'flex';
-
-    // this block ensures that the right section will be shown even if the window reloads
     if (savedSection) {
         showSection(savedSection);
     } else {
         showSection('signin-section');
     }
-        // Only run the APIs if the model image is saved
-        // if (modelImageUrl) {
-        //     fetchItemDetails();
-        // }
+
+    const userName = localStorage.getItem('userName');
+    const userImage = localStorage.getItem('userImage');
+
+    console.log('user name: ', userName);
+    console.log('user image: ', userImage);
+    // const modelImageUrl = localStorage.getItem('modelImageUrl');
+
+    if (userName && userImage) {
+        showSection('input-section');
+
+        document.getElementById('user-name').textContent = userName;
+        document.getElementById('user-image').src = userImage;
+        document.getElementById('user-info').style.display = 'flex';
+        
+        if (savedSection === 'item-section') {
+            showSection('item-section');
+        }
+
+        if (savedSection === 'result-section') {
+            showSection('result-section');
+        }
+
     } else {
-        // document.getElementById('input-section').style.display = 'none';
-        // document.getElementById('signin-section').style.display = 'block'; // Show sign-in section if user is not signed in
+
     }
 });
 
@@ -392,5 +393,9 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         console.error('Error classifying item');
     }
 });
+
+
+// Fetch the item details when the page loads
+// window.addEventListener('load', fetchItemDetails);
 
 // run by git bash terminal : ./start.sh to run the server
