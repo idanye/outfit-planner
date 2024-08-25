@@ -158,26 +158,26 @@ window.addEventListener('load', function() {
         // Check the current page and fetch item details if applicable
         checkCurrentPageAndFetchDetails();
 
-        // if (savedSection === 'item-section') {
-        //     showSection('item-section');
-        // }
-        //
-        // if (savedSection === 'result-section') {
-        //     showSection('result-section');
-        // }
-        //
-        // const itemImageElement = document.getElementById('item-image');
-        //
-        // // handle the case where the item-image element does not exist
-        // if (itemImageElement.value === undefined) {
-        //     document.getElementById('show-result-btn').style.display = 'none';
-        //     document.getElementById('item-image').style.display = 'none';
-        //     document.getElementById('item-name').textContent = "Nothing to display";
-        //     console.log('item-image element does not exists');
-        // } else {
-        //     console.log('item-image element exist');
-        // }
-        //
+        if (savedSection === 'item-section') {
+            showSection('item-section');
+        }
+        
+        if (savedSection === 'result-section') {
+            showSection('result-section');
+        }
+        
+        const itemImageElement = document.getElementById('item-image');
+        
+        // handle the case where the item-image element does not exist
+        if (itemImageElement.value === undefined) {
+            document.getElementById('show-result-btn').style.display = 'none';
+            document.getElementById('item-image').style.display = 'none';
+            document.getElementById('item-name').textContent = "Nothing to display";
+            console.log('item-image element does not exists');
+        } else {
+            console.log('item-image element exist');
+        }
+        
     } else {
         // If not signed in, show the sign-in section
         showSection('signin-section');

@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import base64
 import openai
 
-from backend.classification import clothes_classifier
+from classification import clothes_classifier
 
 # Load environment variables from .env file
 load_dotenv()
@@ -137,7 +137,7 @@ class ModelProcessor:
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.abspath(__file__))
     model_image_path = os.path.join(script_dir, "modelsImages", "model4.png")
-    garment_image_path = os.path.join(script_dir, "garmentsImages", "garment_image-2024_08_25-11_56.jpg")
+    garment_image_path = os.path.join(script_dir, "garmentsImages", "image_4.jpg")
     classifier = clothes_classifier.ClothesClassifier()
     category = classifier.classify_item("COTTON AND MODAL CROP TOP")
 
