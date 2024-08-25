@@ -105,8 +105,8 @@ async def upload_model_image(file: UploadFile = File(...)):
 
 
 @app.post("/scrape-images/")
-def scrape_images(request: ScrapeRequest):
-    print("scrape_images function started")
+def get_scraped_images(request: ScrapeRequest):
+    print("get_scraped_images function started")
 
     scraper = ScraperFactory.get_scraper(request.url)
 
@@ -122,7 +122,8 @@ def scrape_images(request: ScrapeRequest):
     if os.path.exists(garment_image_path):
         # Create a URL that the frontend can use to access the image
         image_url = f"/garments-images/{os.path.basename(garment_image_path)}"
-        print(f"scrape_images function returning: saved_directory: {saved_directory}, item_name: {item_name}, garment_image_path: {image_url}")
+        print(f"scrape_images function returning: saved_directory: {saved_directory}, item_name: {item_name}, "
+              f"garment_image_path: {image_url}")
 
         return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": image_url}
     else:
@@ -132,7 +133,8 @@ def scrape_images(request: ScrapeRequest):
 
 
 @app.post("/classify-item/")
-def classify_item(request: ClassifyRequest):
+def get_classified_item(request: ClassifyRequest):
+    print(f"get_classified_item function started with item name: {request.item_name}")
     classifier = ClothesClassifier()
     category = classifier.classify_item(request.item_name)
     print(f"Item name: {request.item_name}, Category: {category}")

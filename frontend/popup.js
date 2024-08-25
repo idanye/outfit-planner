@@ -142,7 +142,7 @@ window.addEventListener('load', function() {
     // Log the values of savedSection
     console.log('Saved Section:', savedSection);
 
-    // // If there's a saved section, display it; otherwise, default to sign-in
+    // If there's a saved section, display it; otherwise, default to sign-in
     // if (savedSection) {
     //     showSection(savedSection);
     // } else {
