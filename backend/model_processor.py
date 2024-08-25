@@ -19,7 +19,7 @@ class ModelProcessor:
         self.model_image_path = model_image_path
 
     @staticmethod
-    def process_image(model_image_path, garment_image_path, category="Lower-body", images=1,
+    def process_image(model_image_path, garment_image_path, category="Upper-body", images=1,
                       steps=25, guidance_scale=2, seed=-1):
         try:
             # Initialize the Gradio client
@@ -46,6 +46,8 @@ class ModelProcessor:
             result_dir = os.path.join(script_dir, "resultImages")
             os.makedirs(result_dir, exist_ok=True)
 
+            print(f"Result directory: {result_dir}")  # debug
+
             # Get the extension of the model image
             model_image_extension = os.path.splitext(model_image_path)[1]
             # Extract the image path from the response
@@ -59,11 +61,13 @@ class ModelProcessor:
             time.sleep(0.5)
 
             # Generate a unique name using a timestamp and a UUID
-            timestamp = datetime.now().strftime("%Y%m%d%_H%M%")
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             unique_name = f"{timestamp}_{model_image_extension}"
+            print(f"Unique name is: {unique_name}")
 
             # Define the new image path with the unique name
             new_image_path = os.path.join(result_dir, unique_name)
+            print(f"New unique image path: {new_image_path}")
 
             # # Define the new image path with the same extension as the model image new_image_path = os.path.join(
             # result_dir, os.path.basename(temp_image_path).replace('.webp', model_image_extension))
