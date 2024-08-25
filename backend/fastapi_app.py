@@ -154,15 +154,16 @@ def get_processed_image(request: ProcessRequest):
     try:
         print(f"Model image path: {request.model_image_path}", f"Garment image path: {request.garment_image_path}")
         result_image_path = ModelProcessor.process_image(request.model_image_path, request.garment_image_path, request.category)
-        print("get_processed_image function: Image processed successfully")
 
-        result_path = f"/model-result-image/{os.path.basename(result_image_path)}"
+        if os.path.exists(result_image_path):
+            print("get_processed_image function: Image processed successfully")
+            result_path = f"/model-result-image/{os.path.basename(result_image_path)}"
 
-        return result_path
+            return result_path
     except Exception as e:
         print(f"get_processed_image function error: {str(e)}")
-
-        raise HTTPException(status_code=500, detail=str(e))
+        return "None"
+        # raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
