@@ -29,12 +29,16 @@ backend_dir = os.path.abspath(os.path.dirname(__file__))  # Absolute path to the
 base_directory = os.path.join(backend_dir, "scrapers/scraped_images")  # Path for scraped images
 save_directory = os.path.join(backend_dir, "garmentsImages")  # Path for garment images
 model_directory = os.path.join(backend_dir, "modelsImages")  # Path for model images
+result_directory = os.path.join(backend_dir, "resultImages")  # Path for result images
 
 # Get the absolute path to the frontend directory
 frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend'))
 
 # Serve model images from the "garmentsImages" directory
 app.mount("/garments-images", StaticFiles(directory=save_directory), name="garments-images")
+
+# Serve model images from the "garmentsImages" directory
+app.mount("/model-result-image", StaticFiles(directory=result_directory), name="model-result-image")
 
 
 class ScrapeRequest(BaseModel):
@@ -129,30 +133,34 @@ def get_scraped_images(request: ScrapeRequest):
     else:
         print("scrape_images function: No image found")
         # Return an error message if no image is found
-        return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": None}
+        return {"saved_directory": saved_directory, "item_name": item_name, "garment_image_path": "None"}
 
 
 @app.post("/classify-item/")
 def get_classified_item(request: ClassifyRequest):
     print(f"get_classified_item function started with item name: {request.item_name}")
+
     classifier = ClothesClassifier()
     category = classifier.classify_item(request.item_name)
     print(f"Item name: {request.item_name}, Category: {category}")
+
     return {"item_name": request.item_name, "category": category}
 
 
-@app.post("/process-image/")
-def process_image(request: ProcessRequest):
-    print("process_image function started")
+@app.post("/model-process-image/")
+def get_processed_image(request: ProcessRequest):
+    print("get_processed_image function started")
 
     try:
         print(f"Model image path: {request.model_image_path}", f"Garment image path: {request.garment_image_path}")
-        ModelProcessor.process_image(request.model_image_path, request.garment_image_path, request.category)
-        print("process_image function: Image processed successfully")
+        result_image_path = ModelProcessor.process_image(request.model_image_path, request.garment_image_path, request.category)
+        print("get_processed_image function: Image processed successfully")
 
-        return {"message": "Image processed successfully"}
+        result_path = f"/model-result-image/{os.path.basename(result_image_path)}"
+
+        return result_path
     except Exception as e:
-        print(f"process_image function error: {str(e)}")
+        print(f"get_processed_image function error: {str(e)}")
 
         raise HTTPException(status_code=500, detail=str(e))
 

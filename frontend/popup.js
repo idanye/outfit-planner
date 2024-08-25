@@ -301,9 +301,9 @@ async function fetchItemDetails(currentUrl) {
         .then(result => {
             hideLoadingIcon();
 
-            if (result.error) {
+            if (result === "None") {
                 // If there's an error, display the error message to the user
-                document.getElementById('item-name').textContent = result.error;
+                document.getElementById('item-name').textContent = "Error fetching item details, try again later."
                 document.getElementById('item-image').style.display = 'none';
                 document.getElementById('show-result-btn').style.display = 'none';
             } else {
@@ -360,33 +360,33 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
         console.log('Classified category:', category);
 
-        // // Retrieve the stored Blob URL
-        // const modelImageUrl = localStorage.getItem('modelImageUrl');
-        //
-        // if (modelImageUrl) { // Only proceed if modelImageUrl exists
-        //     const processResponse = await fetch(`http://localhost:8000/process-image/`, {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         },
-        //         body: JSON.stringify({
-        //             model_image_path: modelImageUrl,
-        //             garment_image_path: garmentImagePath,
-        //             category: category
-        //         })
-        //     });
-        //
-        //     if (processResponse.ok) {
-        //         const result = await processResponse.json();
-        //         document.getElementById('result').innerHTML = `<img src="${result.garment_image_path}" alt="Garment Image" />`;
-        //         showSection('result-section');
-        //         // document.getElementById('result-section').style.display = 'block';
-        //     } else {
-        //         console.error('Error processing image');
-        //     }
-        // } else {
-        //     console.error('Model image URL not found. Skipping image processing.');
-        // }
+        // Retrieve the stored Blob URL
+        const modelImageUrl = localStorage.getItem('modelImageUrl');
+
+        if (modelImageUrl) { // Only proceed if modelImageUrl exists
+            const processResponse = await fetch(`http://localhost:8000/model-process-image/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model_image_path: modelImageUrl,
+                    garment_image_path: garmentImagePath,
+                    category: category
+                })
+            });
+
+            if (processResponse.ok) {
+                const result = await processResponse.json();
+                document.getElementById('result').innerHTML = `<img src="http://localhost:8000${result}" alt="Model Result Image" />`;
+                showSection('result-section');
+                // document.getElementById('result-section').style.display = 'block';
+            } else {
+                console.error('Error processing image');
+            }
+        } else {
+            console.error('Model image URL not found. Skipping image processing.');
+        }
     } else {
         console.error('Error classifying item');
     }
