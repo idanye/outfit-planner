@@ -8,6 +8,7 @@ class ClothesClassifier:
         item_name_lower = item_name.lower()
 
         if any(keyword in item_name_lower for keyword in ClothesClassifier.UPPER_BODY_KEYWORDS):
+            print('Upper-body')
             return 'Upper-body'
         elif any(keyword in item_name_lower for keyword in ClothesClassifier.LOWER_BODY_KEYWORDS):
             return 'Lower-body'
