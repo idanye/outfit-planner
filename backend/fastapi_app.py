@@ -152,14 +152,33 @@ def get_processed_image(request: ProcessRequest):
     print("get_processed_image function started")
 
     try:
-        print(f"Model image path: {request.model_image_path}", f"Garment image path: {request.garment_image_path}")
-        result_image_path = ModelProcessor.process_image(request.model_image_path, request.garment_image_path, request.category)
+        # Adjust paths to be relative to the backend directory
+        base_dir = os.path.join(os.getcwd(), "backend")
+        print(f"Current working directory: {base_dir}")
 
-        if os.path.exists(result_image_path):
-            print("get_processed_image function: Image processed successfully")
+        model_image_path = os.path.join(base_dir, request.model_image_path)
+
+        # Handle garment image path, replacing URL part with local directory
+        garment_image_path = request.garment_image_path
+        garment_image_filename = garment_image_path.replace("http://localhost:8000/garments-images/", "")
+        garment_image_path = os.path.join(base_dir, "garmentsImages", garment_image_filename)
+
+        print(f"Absolute model image path: {model_image_path}")
+        print(f"Absolute garment image path: {garment_image_path}")
+
+        # Process the image
+        result_image_path = ModelProcessor.process_image(model_image_path, garment_image_path, request.category)
+
+        if result_image_path and os.path.exists(result_image_path):
+            print("Image processed successfully")
             result_path = f"/model-result-image/{os.path.basename(result_image_path)}"
 
             return result_path
+
+        else:
+            print("Failed to process the image or file does not exist.")
+            return "None"
+
     except Exception as e:
         print(f"get_processed_image function error: {str(e)}")
         return "None"
