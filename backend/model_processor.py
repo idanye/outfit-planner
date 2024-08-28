@@ -22,6 +22,20 @@ class ModelProcessor:
     def process_image(model_image_path, garment_image_path, category="Upper-body", images=1,
                       steps=25, guidance_scale=2, seed=-1):
         try:
+            print(f"process_image function started")
+            # Convert to absolute paths
+            model_image_path = os.path.abspath(model_image_path)
+            garment_image_path = os.path.abspath(garment_image_path)
+
+            print(f"Absolute model image path: {model_image_path}")
+            print(f"Absolute garment image path: {garment_image_path}")
+
+            # Ensure files exist
+            if not os.path.exists(model_image_path):
+                raise FileNotFoundError(f"Model image path '{model_image_path}' does not exist.")
+            if not os.path.exists(garment_image_path):
+                raise FileNotFoundError(f"Garment image path '{garment_image_path}' does not exist.")
+
             # Initialize the Gradio client
             client = Client("levihsu/OOTDiffusion", hf_token="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")
             # Make the API call
