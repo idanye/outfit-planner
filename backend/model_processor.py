@@ -75,7 +75,7 @@ class ModelProcessor:
             time.sleep(0.5)
 
             # Generate a unique name using a timestamp and a UUID
-            timestamp = datetime.now().strftime("result_image-%Y%m%d_%H%M")
+            timestamp = datetime.now().strftime("result_image-%Y_%m_%d-%H_%M")
             unique_name = f"{timestamp}{model_image_extension}"
             print(f"Unique name is: {unique_name}")
 

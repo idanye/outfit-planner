@@ -120,12 +120,16 @@ function checkCurrentPageAndFetchDetails() {
         const currentUrl = tabs[0].url;
         console.log('Checking the current URL:', currentUrl);
         const lastScrapedUrl = localStorage.getItem('lastScrapedUrl');
+        const lastFetchedData = localStorage.getItem('lastFetchedData');
 
         // Only scrape if the URL hasn't been scraped last
-        if (currentUrl !== lastScrapedUrl) {
-            fetchItemDetails(currentUrl);
-        } else {
+        if (currentUrl === lastScrapedUrl && lastFetchedData) {
             console.log('URL was already the last scraped, skipping scraping.');
+            // If the URL is the same, and we have fetched data, display it
+            displayItemDetails(JSON.parse(lastFetchedData));
+        } else {
+            // Otherwise, fetch new data
+            fetchItemDetails(currentUrl);
         }
     });
 }
@@ -151,6 +155,9 @@ window.addEventListener('load', function() {
     //     showSection('signin-section');
     // }
 
+    // Always check the current page and fetch details, even on load
+    checkCurrentPageAndFetchDetails();
+
     if (userName && userImage) {
         showSection('input-section');
 
@@ -159,7 +166,7 @@ window.addEventListener('load', function() {
         document.getElementById('user-info').style.display = 'flex';
 
         if (hasViewedResult === 'true') {
-            checkCurrentPageAndFetchDetails();
+            // checkCurrentPageAndFetchDetails();
             localStorage.removeItem('hasViewedResult');
         }
 
@@ -257,15 +264,15 @@ async function fetchItemDetails(currentUrl) {
     // Create a URL object from the current URL
     const urlObject = new URL(currentUrl);
     // Log the pathname for debugging
-    const pathName = urlObject.pathname;
-    // console.log('Pathname:', pathName);
+    // const pathName = urlObject.pathname;
+    // // console.log('Pathname:', pathName);
 
     // 1. Check if the URL starts with https://www.zara.com/
     const domainRegex = /^https:\/\/www\.zara\.com\//;
     if (!domainRegex.test(currentUrl)) {
         console.log('Not a Zara URL');
         hideLoadingIcon();
-        showNothingToDisplay();
+        showNothingToDisplay("Nothing to display");
         return;
     }
 
@@ -275,7 +282,7 @@ async function fetchItemDetails(currentUrl) {
     if (!domainRegex.test(currentUrl) || !productPathRegex.test(urlObject.pathname)) {
         console.log('Url does not contain product path');
         hideLoadingIcon();
-        showNothingToDisplay();
+        showNothingToDisplay("Nothing to display");
         return;
     }
 
@@ -286,7 +293,7 @@ async function fetchItemDetails(currentUrl) {
     if (!v1 || !v2 || isNaN(v1) || isNaN(v2)) {
         console.log('URL does not contain valid v1 and v2 parameters');
         hideLoadingIcon();
-        showNothingToDisplay();
+        showNothingToDisplay("Nothing to display");
         return;
     }
 
@@ -309,29 +316,25 @@ async function fetchItemDetails(currentUrl) {
 
             if (result === "None") {
                 // If there's an error, display the error message to the user
-                document.getElementById('item-name').textContent = "Error fetching item details, try again later."
-                document.getElementById('item-image').style.display = 'none';
-                document.getElementById('show-result-btn').style.display = 'none';
+                showNothingToDisplay("Error fetching item details, try again later.");
             } else {
                 // Display the item details and image
-                document.getElementById('item-name').textContent = result.item_name;
-                document.getElementById('item-image').src = `http://localhost:8000${result.garment_image_path}`;
-                document.getElementById('item-image').style.display = 'block';
-                document.getElementById('show-result-btn').style.display = 'block';
+                displayItemDetails(result);
 
                 // Save the last scraped URL
                 localStorage.setItem('lastScrapedUrl', currentUrl);
+                localStorage.setItem('lastFetchedData', JSON.stringify(result));
             }
         })
         .catch(error => {
             hideLoadingIcon();
             console.error('Error fetching item details:', error);
-            showNothingToDisplay();
+            showNothingToDisplay("Error fetching item details, try again later.");
         });
 
     // Helper function to show "Nothing to display" message
-    function showNothingToDisplay() {
-        document.getElementById('item-name').textContent = "Nothing to display";
+    function showNothingToDisplay(message) {
+        document.getElementById('item-name').textContent = `${message}`;// `"Nothing to display"
         document.getElementById('item-image').style.display = 'none';
         document.getElementById('show-result-btn').style.display = 'none';
     }
@@ -347,6 +350,20 @@ async function fetchItemDetails(currentUrl) {
     // Helper function to hide the loading icon
     function hideLoadingIcon() {
         document.getElementById('loading-icon').style.display = 'none';
+    }
+}
+
+// Function to display the item details
+function displayItemDetails(data) {
+    document.getElementById('item-name').textContent = data.item_name;
+    document.getElementById('item-image').src = `http://localhost:8000${data.garment_image_path}`;
+    document.getElementById('item-image').style.display = 'block';
+    document.getElementById('show-result-btn').style.display = 'block';
+
+    // Check if the result was already computed and stored
+    const lastResultImage = localStorage.getItem('lastResultImage');
+    if (lastResultImage) {
+        displayResultImage(lastResultImage);
     }
 }
 
@@ -371,8 +388,6 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
         // Extract the correct relative path for the garment image
         const garmentImageRelativePath = garmentImageUrl.replace(`${window.location.origin}/garments-images/`, "garmentsImages/");
-
-        // Retrieve the stored Blob URL
         const modelImageUrl = localStorage.getItem('modelImageUrl');
 
         if (modelImageUrl) { // Only proceed if modelImageUrl exists
@@ -396,25 +411,30 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
             if (processResponse.ok) {
                 const result = await processResponse.json();
-                document.getElementById('result').innerHTML = `<img src="http://localhost:8000${result}" alt="Model Result Image" />`;
-                showSection('result-section');
-                // document.getElementById('result-section').style.display = 'block';
-                localStorage.setItem('hasViewedResult', 'true');
+                displayResultImage(`http://localhost:8000${result}`);
 
-                // Add buttons for returning to item details and downloading the image
-                document.getElementById('result-buttons').innerHTML = `
-                    <button id="return-to-details-btn">Return to Get Item Details</button>
-                    <button id="download-result-photo-btn">Download Result Photo</button>
-                `;
+                // Save the result image URL in localStorage
+                localStorage.setItem('lastResultImage', `http://localhost:8000${result}`);
 
-                document.getElementById('return-to-details-btn').addEventListener('click', () => {
-                    checkCurrentPageAndFetchDetails();
-                    showSection('item-section');
-                });
-
-                document.getElementById('download-result-photo-btn').addEventListener('click', () => {
-                    downloadImage(`http://localhost:8000${result}`);
-                });
+                // document.getElementById('result').innerHTML = `<img src="http://localhost:8000${result}" alt="Model Result Image" />`;
+                // showSection('result-section');
+                // // document.getElementById('result-section').style.display = 'block';
+                // localStorage.setItem('hasViewedResult', 'true');
+                //
+                // // Add buttons for returning to item details and downloading the image
+                // document.getElementById('result-buttons').innerHTML = `
+                //     <button id="return-to-details-btn">Return to Get Item Details</button>
+                //     <button id="download-result-photo-btn">Download Result Photo</button>
+                // `;
+                //
+                // document.getElementById('return-to-details-btn').addEventListener('click', () => {
+                //     checkCurrentPageAndFetchDetails();
+                //     showSection('item-section');
+                // });
+                //
+                // document.getElementById('download-result-photo-btn').addEventListener('click', () => {
+                //     downloadImage(`http://localhost:8000${result}`);
+                // });
             } else {
                 console.error('Error processing image');
             }
@@ -425,6 +445,27 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
         console.error('Error classifying item');
     }
 });
+
+// Function to display the result image
+function displayResultImage(imageUrl) {
+    document.getElementById('result').innerHTML = `<img src="${imageUrl}" alt="Model Result Image" />`;
+    showSection('result-section');
+    localStorage.setItem('hasViewedResult', 'true');
+
+    document.getElementById('result-buttons').innerHTML = `
+        <button id="return-to-details-btn">Return to Get Item Details</button>
+        <button id="download-result-photo-btn">Download Result Photo</button>
+    `;
+
+    document.getElementById('return-to-details-btn').addEventListener('click', () => {
+        checkCurrentPageAndFetchDetails();
+        showSection('item-section');
+    });
+
+    document.getElementById('download-result-photo-btn').addEventListener('click', () => {
+        downloadImage(imageUrl);
+    });
+}
 
 // Helper function to download an image
 function downloadImage(url) {
