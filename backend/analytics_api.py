@@ -7,6 +7,7 @@ import requests
 load_dotenv()
 
 # Access the environment variables
+GA_ENDPOINT = "https://www.google-analytics.com/mp/collect"
 MEASUREMENT_ID = os.getenv('MEASUREMENT_ID')
 API_SECRET = os.getenv('API_SECRET')
 
