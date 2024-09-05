@@ -13,7 +13,6 @@ async function getOrCreateClientId() {
     return clientId;
     }
 
-
 // Function to create or retrieve a session ID (for demonstration purposes)
 async function getOrCreateSessionId() {
     let sessionId;
@@ -34,9 +33,9 @@ async function getOrCreateSessionId() {
   }
   
 
-const GA_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
-const MEASUREMENT_ID = os.getenv('MEASUREMENT_ID');
-const API_SECRET = os.getenv('API_SECRET');
+// const GA_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
+// const MEASUREMENT_ID = os.getenv('MEASUREMENT_ID');
+// const API_SECRET = os.getenv('API_SECRET');
 
 async function sendAnalyticsEvent() {
     // Generate or retrieve a unique client ID for the user
@@ -74,77 +73,36 @@ async function sendAnalyticsEvent() {
   }
   
   
-  // Call the function to send an event
-  sendAnalyticsEvent();
+  // // Call the function to send an event
+  // sendAnalyticsEvent();
 
+async function sendAnalyticsEvent() {
+    const clientId = await getOrCreateClientId();
+    const sessionId = await getOrCreateSessionId();
+    const engagementTimeMsec = 1000; // Example: 1000ms (1 second); adjust as needed
 
-// fetch(
-//   `${GA_ENDPOINT}?measurement_id=${MEASUREMENT_ID}&api_secret=${API_SECRET}`,
-//   {
-//     method: 'POST',
-//     body: JSON.stringify({
-//       client_id: await getOrCreateClientId(),
-//       events: [
-//         {
-//           name: 'button_clicked',
-//           params: {
-//             id: 'my-button',
-//           },
-//         },
-//       ],
-//     }),
-//   }
-// );
+    // Send the event to your backend API instead of directly to Google Analytics
+    fetch('http://localhost:8000/send-analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            client_id: clientId,
+            event_name: 'button_clicked',
+            event_params: {
+                id: 'my-button',
+                session_id: sessionId,
+                engagement_time_msec: engagementTimeMsec,
+            }
+        }),
+    })
+    .then(response => response.json())
+    .then(data => console.log('Event sent to backend:', data))
+    .catch(error => console.error('Error sending event to backend:', error));
+}
 
-
-
-// chrome.storage.local.get('client_id', function(result) {
-// if (result.client_id) {
-//     console.log('Client ID:', result.client_id);
-//     // Use the client_id for analytics calls
-// }
-// });
-
+// Call the function to send an event
+sendAnalyticsEvent();
 
 
 
-// function sendToGoogleAnalytics(eventName, eventParams) {
-//     const measurementId = window.MEASUREMENT_ID; // Access the global variable
-//     const apiSecret = window.API_SECRET; // Access the global variable
-
-//     chrome.storage.local.get(['clientId'], function(result) {
-//         const clientId = result.clientId || generateUniqueId();
-//         const url = `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`;
-//         const payload = {
-//             client_id: clientId,
-//             events: [
-//                 {
-//                     name: eventName,
-//                     params: eventParams
-//                 }
-//             ]
-//         };
-
-//         fetch(url, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify(payload)
-//         })
-//         .then(response => {
-//             if (response.status === 204) {
-//                 console.log('Event sent successfully');
-//             } else {
-//                 console.error('Failed to send event', response.status, response.statusText);
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error sending event', error);
-//         });
-//     });
-// }
-
-
-// sendToGoogleAnalytics('page_view', { page_title: document.title, page_location: window.location.href });
 
