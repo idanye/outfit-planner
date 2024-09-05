@@ -363,7 +363,7 @@ function displayItemDetails(data) {
     // Check if the result was already computed and stored
     const lastResultImage = localStorage.getItem('lastResultImage');
     if (lastResultImage) {
-        displayResultImage(lastResultImage);
+        displayResultImage(lastResultImage, data.item_name);
     }
 }
 
@@ -411,30 +411,10 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 
             if (processResponse.ok) {
                 const result = await processResponse.json();
-                displayResultImage(`http://localhost:8000${result}`);
+                displayResultImage(`http://localhost:8000${result}`, itemName);
 
                 // Save the result image URL in localStorage
                 localStorage.setItem('lastResultImage', `http://localhost:8000${result}`);
-
-                // document.getElementById('result').innerHTML = `<img src="http://localhost:8000${result}" alt="Model Result Image" />`;
-                // showSection('result-section');
-                // // document.getElementById('result-section').style.display = 'block';
-                // localStorage.setItem('hasViewedResult', 'true');
-                //
-                // // Add buttons for returning to item details and downloading the image
-                // document.getElementById('result-buttons').innerHTML = `
-                //     <button id="return-to-details-btn">Return to Get Item Details</button>
-                //     <button id="download-result-photo-btn">Download Result Photo</button>
-                // `;
-                //
-                // document.getElementById('return-to-details-btn').addEventListener('click', () => {
-                //     checkCurrentPageAndFetchDetails();
-                //     showSection('item-section');
-                // });
-                //
-                // document.getElementById('download-result-photo-btn').addEventListener('click', () => {
-                //     downloadImage(`http://localhost:8000${result}`);
-                // });
             } else {
                 console.error('Error processing image');
             }
@@ -447,8 +427,11 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
 });
 
 // Function to display the result image
-function displayResultImage(imageUrl) {
+function displayResultImage(imageUrl, itemName) {
     document.getElementById('result').innerHTML = `<img src="${imageUrl}" alt="Model Result Image" />`;
+    document.getElementById('result').style.display = `flex`;
+    document.getElementById('result-item-name').textContent = itemName;
+
     showSection('result-section');
     localStorage.setItem('hasViewedResult', 'true');
 
