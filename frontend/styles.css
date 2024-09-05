@@ -125,10 +125,10 @@ button::before {
 }
 
 #return-to-details-btn::before {
-  content: url('https://img.icons8.com/?size=25&id=9045&format=png&color=FFFFFF');
+  content: url('https://img.icons8.com/?size=20&id=9045&format=png&color=FFFFFF');
 }
 
 #download-result-photo-btn::before {
-  content: url('https://img.icons8.com/?size=25&id=83159&format=png&color=FFFFFF');
+  content: url('https://img.icons8.com/?size=20&id=83159&format=png&color=FFFFFF');
 }
 

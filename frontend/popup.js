@@ -355,7 +355,7 @@ async function fetchItemDetails(currentUrl) {
 
 // Function to display the item details
 function displayItemDetails(data) {
-    document.getElementById('item-name').textContent = data.item_name;
+    document.getElementById('item-name').textContent = toTitleCase(data.item_name);
     document.getElementById('item-image').src = `http://localhost:8000${data.garment_image_path}`;
     document.getElementById('item-image').style.display = 'block';
     document.getElementById('show-result-btn').style.display = 'block';
@@ -426,11 +426,22 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
     }
 });
 
+// Function to convert item name to Title Case (not in all caps)
+function toTitleCase(itemName) {
+    return itemName
+        .toLowerCase() // Convert the entire string to lowercase
+        .split(' ') // Split the string by spaces into an array of words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+        .join(' '); // Join the words back into a single string
+}
+
 // Function to display the result image
 function displayResultImage(imageUrl, itemName) {
+    const formattedItemName = toTitleCase(itemName);
+
     document.getElementById('result').innerHTML = `<img src="${imageUrl}" alt="Model Result Image" />`;
     document.getElementById('result').style.display = `flex`;
-    document.getElementById('result-item-name').textContent = itemName;
+    document.getElementById('result-item-name').textContent = formattedItemName;
 
     showSection('result-section');
     localStorage.setItem('hasViewedResult', 'true');

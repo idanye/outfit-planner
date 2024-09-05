@@ -4,7 +4,6 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import requests
-# from flask import Flask, request, jsonify  # Using Flask for simplicity
 
 # Load environment variables from .env file
 load_dotenv()
