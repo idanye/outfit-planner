@@ -82,6 +82,7 @@ async function sendAnalyticsEvent() {
     const engagementTimeMsec = 1000; // Example: 1000ms (1 second); adjust as needed
 
     // Send the event to your backend API instead of directly to Google Analytics
+    // fetch('http://127.0.0.1:8000/send-analytics', {
     fetch('http://localhost:8000/send-analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
