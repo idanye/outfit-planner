@@ -28,6 +28,7 @@ app.add_middleware(
 # Endpoint to receive data from the frontend and send it to Google Analytics
 @app.post("/send-analytics")
 async def send_analytics(request: Request):
+    print("Received analytics call in backend...")
     data = await request.json()
     client_id = data['client_id']
     event_name = data['event_name']
@@ -43,14 +44,17 @@ async def send_analytics(request: Request):
     }
     response = requests.post(url, json=payload)
     if response.status_code == 204:
+        print("Event sent to Google Analytics")
         return JSONResponse(content={'status': 'success', 'message': 'Event sent to Google Analytics'}, status_code=200)
     else:
+        print(f"Error sending event to Google Analytics: {response.text}")
         raise HTTPException(status_code=response.status_code, detail=response.text)
+
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug")  # Replace `debug=True` with `log_level="info"` in production
-
+    # uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug")  # Replace `debug=True` with `log_level="info"` in production
+    uvicorn.run(app, host="0.0.0.0", port=3000, reload=True, log_level="debug") 
 
 
 
@@ -83,30 +87,6 @@ if __name__ == '__main__':
 
 
 
-
-
-
-# from dotenv import load_dotenv
-# import os
-
-# # Load environment variables from .env file
-# load_dotenv()
-
-# # Access the environment variables
-# MEASUREMENT_ID = os.getenv('MEASUREMENT_ID')
-# API_SECRET = os.getenv('API_SECRET')
-
-# # Function to send analytics data
-# def send_analytics(client_id, event_name, event_params):
-#     import requests
-
-#     url = f'https://www.google-analytics.com/mp/collect?measurement_id={MEASUREMENT_ID}&api_secret={API_SECRET}'
-#     payload = {
-#         'client_id': client_id,
-#         'events': [{
-#             'name': event_name,
-#             'params': event_params
-#         }]
-#     }
-#     response = requests.post(url, json=payload)
-#     print(f'Status Code: {response.status_code}, Response: {response.text}')
+#  Run the backend server like this for analytics_api.py to work:
+# cd backend
+# uvicorn analytics_api:app --host 0.0.0.0 --port 8000 --reload

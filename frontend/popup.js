@@ -470,8 +470,26 @@ function downloadImage(url) {
     link.click();
     document.body.removeChild(link);
 }
-
 // Additional HTML elements
 document.getElementById('result-section').innerHTML += `<div id="result-buttons"></div>`;
+
+
+
+// document.addEventListener('DOMContentLoaded', function () {
+//     const button = document.getElementById('trackButton');
+
+//     // Ensure analytics.js is loaded and sendAnalyticsEvent is defined
+//     if (typeof sendAnalyticsEvent === 'function') {
+//         console.log('Analytics script loaded successfully.');
+
+//         // Example: Send an analytics event when a button is clicked
+//         button.addEventListener('click', function () {
+//             sendAnalyticsEvent();  // Call the analytics function when button is clicked
+//         });
+//     } else {
+//         console.error('Analytics script not loaded or function not defined.');
+//     }
+// });
+
 
 // run by git bash terminal : ./start.sh to run the server

@@ -1,0 +1,142 @@
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [18924] using WatchFiles
+INFO:     Started server process [1736]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:49700 - "POST /send-analytics HTTP/1.1" 200 OK
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [3080] using WatchFiles
+INFO:     Started server process [19376]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [17548] using WatchFiles
+INFO:     Started server process [14000]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [19408] using WatchFiles
+INFO:     Started server process [12912]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [12816] using WatchFiles
+INFO:     Started server process [18468]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [15976] using WatchFiles
+INFO:     Started server process [15796]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [6880] using WatchFiles
+INFO:     Started server process [12464]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [860] using WatchFiles
+INFO:     Started server process [2536]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:49890 - "OPTIONS /send-analytics HTTP/1.1" 200 OK
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:49890 - "POST /send-analytics HTTP/1.1" 200 OK
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:49892 - "POST /send-analytics HTTP/1.1" 200 OK
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [13848] using WatchFiles
+INFO:     Started server process [14708]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:49995 - "POST /send-analytics HTTP/1.1" 200 OK
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:49997 - "POST /send-analytics HTTP/1.1" 200 OK
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:49997 - "POST /send-analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50013 - "POST /upload-model-image/ HTTP/1.1" 404 Not Found
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [18604] using WatchFiles
+INFO:     Started server process [18304]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [5140] using WatchFiles
+INFO:     Started server process [14464]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:50097 - "POST /send-analytics HTTP/1.1" 200 OK
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:50099 - "POST /send-analytics HTTP/1.1" 200 OK
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:50132 - "POST /send-analytics HTTP/1.1" 200 OK
+Received analytics call in backend...
+Event sent to Google Analytics
+INFO:     127.0.0.1:50134 - "POST /send-analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50134 - "POST /upload-model-image/ HTTP/1.1" 404 Not Found
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [12628] using WatchFiles
+INFO:     Started server process [1948]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [8268] using WatchFiles
+INFO:     Started server process [16908]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [9488] using WatchFiles
+INFO:     Started server process [18468]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [14468] using WatchFiles
+INFO:     Started server process [11252]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [12740] using WatchFiles
+INFO:     Started server process [7672]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [7580] using WatchFiles
+INFO:     Started server process [13836]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Will watch for changes in these directories: ['C:\\Users\\Nofar\\year4SemB\\FromIdeaToApp\\outfit-planner']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [10224] using WatchFiles
+INFO:     Started server process [16688]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend\run_analytics.py'. Reloading...

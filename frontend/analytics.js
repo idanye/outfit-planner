@@ -37,40 +37,40 @@ async function getOrCreateSessionId() {
 // const MEASUREMENT_ID = os.getenv('MEASUREMENT_ID');
 // const API_SECRET = os.getenv('API_SECRET');
 
-async function sendAnalyticsEvent() {
-    // Generate or retrieve a unique client ID for the user
-    const clientId = await getOrCreateClientId();
+// async function sendAnalyticsEvent() {
+//     // Generate or retrieve a unique client ID for the user
+//     const clientId = await getOrCreateClientId();
   
-    // Generate or retrieve a session ID for the user session
-    const sessionId = await getOrCreateSessionId(); // Implement this function to create or retrieve a session ID
+//     // Generate or retrieve a session ID for the user session
+//     const sessionId = await getOrCreateSessionId(); // Implement this function to create or retrieve a session ID
   
-    // Define engagement time in milliseconds
-    const engagementTimeMsec = 1000; // Example: 1000ms (1 second); adjust based on actual engagement
+//     // Define engagement time in milliseconds
+//     const engagementTimeMsec = 1000; // Example: 1000ms (1 second); adjust based on actual engagement
   
-    // Send the event to Google Analytics
-    fetch(
-      `${GA_ENDPOINT}?measurement_id=${MEASUREMENT_ID}&api_secret=${API_SECRET}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client_id: clientId,
-          events: [
-            {
-              name: 'button_clicked',
-              params: {
-                id: 'my-button',
-                session_id: sessionId,
-                engagement_time_msec: engagementTimeMsec,
-              },
-            },
-          ],
-        }),
-      }
-    ).then(response => response.json())
-      .then(data => console.log('Event sent:', data))
-      .catch(error => console.error('Error sending event:', error));
-  }
+//     // Send the event to Google Analytics
+//     fetch(
+//       `${GA_ENDPOINT}?measurement_id=${MEASUREMENT_ID}&api_secret=${API_SECRET}`,
+//       {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           client_id: clientId,
+//           events: [
+//             {
+//               name: 'button_clicked',
+//               params: {
+//                 id: 'my-button',
+//                 session_id: sessionId,
+//                 engagement_time_msec: engagementTimeMsec,
+//               },
+//             },
+//           ],
+//         }),
+//       }
+//     ).then(response => response.json())
+//       .then(data => console.log('Event sent:', data))
+//       .catch(error => console.error('Error sending event:', error));
+//   }
   
   
   // // Call the function to send an event
@@ -83,7 +83,9 @@ async function sendAnalyticsEvent() {
 
     // Send the event to your backend API instead of directly to Google Analytics
     // fetch('http://127.0.0.1:8000/send-analytics', {
-    fetch('http://localhost:8000/send-analytics', {
+      console.log("Sending analytics event...");
+      
+    fetch('http://localhost:3000/send-analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
