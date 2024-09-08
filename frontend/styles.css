@@ -1,4 +1,4 @@
-/* General Styles */
+
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
 
 body {
@@ -13,7 +13,7 @@ body {
 
 .container {
   background-color: #fff;
-  padding: 20px;
+  padding: 20px 20px 25px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 260px;
@@ -52,12 +52,21 @@ h1 {
 }
 
 #loading-icon {
-    text-align: center;
-    margin-top: 20px;
+  text-align: center;
+  margin-top: 20px;
 }
 
 #item-name {
-  font-size: 12px;
+  font-size: 14px;
+  text-align: center;
+  color: #03033c;
+}
+
+#item-image {
+  display: block;
+  max-width: 70%;
+  margin: 0 auto;
+  padding: 15px;
 }
 
 h2 {
@@ -84,9 +93,10 @@ button {
   border-radius: 4px;
   cursor: pointer;
   font-size: 15px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 button:hover {
@@ -122,6 +132,10 @@ button::before {
 
 #result-buttons button {
   justify-content: center;
+}
+
+#return-to-details-btn {
+  margin-bottom: 10px;
 }
 
 #return-to-details-btn::before {

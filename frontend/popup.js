@@ -1,13 +1,4 @@
 
-// Function to show a specific section and save it to localStorage
-function showSection(sectionId) {
-    // Hide all sections first
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(section => section.style.display = 'none');
-    document.getElementById(sectionId).style.display = 'block';
-    localStorage.setItem('currentSection', sectionId);
-}
-
 // Function to handle Google sign-in using Chrome Identity API
 function signInWithGoogle() {
     chrome.identity.getAuthToken({ interactive: true }, function(token) {
@@ -51,12 +42,6 @@ function signInWithGoogle() {
         .catch(error => console.error("Error fetching user info: ", error));
     });
 }
-
-// Add event listener for the sign-in button
-document.getElementById('signin-button').addEventListener('click', signInWithGoogle);
-
-// Attach event listener to user image for sign-out
-document.getElementById('user-image').addEventListener('click', signOut);
 
 // Function to handle Google sign-out
 function signOut() {
@@ -114,46 +99,21 @@ function signOut() {
     }
 }
 
-// Function to check the current page and fetch item details
-function checkCurrentPageAndFetchDetails() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const currentUrl = tabs[0].url;
-        console.log('Checking the current URL:', currentUrl);
-        const lastScrapedUrl = localStorage.getItem('lastScrapedUrl');
-        const lastFetchedData = localStorage.getItem('lastFetchedData');
+// Add event listener for the sign-in button
+document.getElementById('signin-button').addEventListener('click', signInWithGoogle);
 
-        // Only scrape if the URL hasn't been scraped last
-        if (currentUrl === lastScrapedUrl && lastFetchedData) {
-            console.log('URL was already the last scraped, skipping scraping.');
-            // If the URL is the same, and we have fetched data, display it
-            displayItemDetails(JSON.parse(lastFetchedData));
-        } else {
-            // Otherwise, fetch new data
-            fetchItemDetails(currentUrl);
-        }
-    });
-}
+// Attach event listener to user image for sign-out
+document.getElementById('user-image').addEventListener('click', signOut);
 
 // Check if the user is already signed in when the page loads
 window.addEventListener('load', function() {
     const savedSection = localStorage.getItem('currentSection');
     const userName = localStorage.getItem('userName');
     const userImage = localStorage.getItem('userImage');
-    const hasViewedResult = localStorage.getItem('hasViewedResult');
+    // const hasViewedResult = localStorage.getItem('hasViewedResult');
 
     console.log('user name: ', userName);
     console.log('user image: ', userImage);
-    // const modelImageUrl = localStorage.getItem('modelImageUrl');
-
-    // Log the values of savedSection
-    console.log('Saved Section:', savedSection);
-
-    // If there's a saved section, display it; otherwise, default to sign-in
-    // if (savedSection) {
-    //     showSection(savedSection);
-    // } else {
-    //     showSection('signin-section');
-    // }
 
     // Always check the current page and fetch details, even on load
     checkCurrentPageAndFetchDetails();
@@ -165,21 +125,20 @@ window.addEventListener('load', function() {
         document.getElementById('user-image').src = userImage;
         document.getElementById('user-info').style.display = 'flex';
 
-        if (hasViewedResult === 'true') {
-            // checkCurrentPageAndFetchDetails();
-            localStorage.removeItem('hasViewedResult');
-        }
+        // if (hasViewedResult === 'true') {
+        //     localStorage.removeItem('hasViewedResult');
+        // }
 
         if (savedSection === 'item-section') {
             showSection('item-section');
         }
-        
+
         if (savedSection === 'result-section') {
             showSection('result-section');
         }
-        
+
         const itemImageElement = document.getElementById('item-image');
-        
+
         // handle the case where the item-image element does not exist
         if (itemImageElement.value === undefined) {
             document.getElementById('show-result-btn').style.display = 'none';
@@ -189,7 +148,7 @@ window.addEventListener('load', function() {
         } else {
             console.log('item-image element exist');
         }
-        
+
     } else {
         // If not signed in, show the sign-in section
         showSection('signin-section');
@@ -233,14 +192,10 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
 
             document.getElementById('upload-feedback').textContent = 'Model image uploaded successfully!';
             showSection('item-section');
-            // document.getElementById('upload-feedback').style.display = 'block';
-
-            // Hide input section and show item details section
-            // document.getElementById('input-section').style.display = 'none';
-            // document.getElementById('item-section').style.display = 'block';
 
             // Now fetch item details since the model image has been uploaded
             checkCurrentPageAndFetchDetails();
+
         } else {
             const errorText = await response.text(); // Get error details from the response
             document.getElementById('upload-feedback').textContent = `Error uploading model image: ${errorText}`;
@@ -255,17 +210,57 @@ document.getElementById('upload-model-btn').addEventListener('click', async () =
     }
 });
 
+// Function to show a specific section and save it to localStorage
+function showSection(sectionId) {
+    // Hide all sections first
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.style.display = 'none');
+    document.getElementById(sectionId).style.display = 'block';
+    localStorage.setItem('currentSection', sectionId);
+}
+
+// Function to check the current page and fetch item details
+function checkCurrentPageAndFetchDetails() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        const currentUrl = tabs[0].url;
+        console.log('Checking the current URL:', currentUrl);
+
+        const lastScrapedUrl = localStorage.getItem('lastScrapedUrl');
+        const lastFetchedData = localStorage.getItem('lastFetchedData');
+        const lastResultImage = localStorage.getItem('lastResultImage');
+
+        // Only scrape if the URL hasn't been scraped last
+        if (currentUrl === lastScrapedUrl && lastFetchedData) {
+            console.log('URL was already the last scraped, skipping scraping.');
+            // If the URL is the same, and we have fetched data, display it
+            // displayItemDetails(JSON.parse(lastFetchedData));
+            console.log('Using cached data for URL:', currentUrl);
+
+            const data = JSON.parse(lastFetchedData);
+
+            if (localStorage.getItem('hasViewedResult') === 'true') {
+                displayResultImage(lastResultImage, data.item_name);
+            } else {
+                displayItemDetails(data);
+            }
+        } else {
+            // Otherwise, fetch new data
+            console.log('Fetching new data...');
+            fetchItemDetails(currentUrl);
+        }
+    });
+}
 
 // Fetch item details from the API and display them
 async function fetchItemDetails(currentUrl) {
+    // Ensure result section is hidden during scraping
+    document.getElementById('result-section').style.display = 'none';
+
     // Show loading icon
     showLoadingIcon();
 
     // Create a URL object from the current URL
     const urlObject = new URL(currentUrl);
-    // Log the pathname for debugging
-    // const pathName = urlObject.pathname;
-    // // console.log('Pathname:', pathName);
 
     // 1. Check if the URL starts with https://www.zara.com/
     const domainRegex = /^https:\/\/www\.zara\.com\//;
@@ -324,53 +319,68 @@ async function fetchItemDetails(currentUrl) {
                 // Save the last scraped URL
                 localStorage.setItem('lastScrapedUrl', currentUrl);
                 localStorage.setItem('lastFetchedData', JSON.stringify(result));
+                localStorage.removeItem('hasViewedResult'); // Reset result view status
             }
         })
         .catch(error => {
             hideLoadingIcon();
             console.error('Error fetching item details:', error);
             showNothingToDisplay("Error fetching item details, try again later.");
-        });
+        }
+    );
+}
 
-    // Helper function to show "Nothing to display" message
-    function showNothingToDisplay(message) {
-        document.getElementById('item-name').textContent = `${message}`;// `"Nothing to display"
-        document.getElementById('item-image').style.display = 'none';
-        document.getElementById('show-result-btn').style.display = 'none';
-    }
+// Helper function to show "Nothing to display" message
+function showNothingToDisplay(message) {
+    document.getElementById('item-name').textContent = `${message}`;// `"Nothing to display"
+    document.getElementById('item-section').style.display = 'block';
+    document.getElementById('result-section').style.display = 'none';
+    document.getElementById('item-image').style.display = 'none';
+    document.getElementById('show-result-btn').style.display = 'none';
+}
 
-    // Helper function to show the loading icon
-    function showLoadingIcon() {
-        document.getElementById('loading-icon').style.display = 'block';
-        document.getElementById('item-name').textContent = "";
-        document.getElementById('item-image').style.display = 'none';
-        document.getElementById('show-result-btn').style.display = 'none';
-    }
+// Helper function to show the loading icon
+function showLoadingIcon() {
+    document.getElementById('loading-icon').style.display = 'block';
+    document.getElementById('item-name').textContent = "";
+    document.getElementById('item-image').style.display = 'none';
+    document.getElementById('show-result-btn').style.display = 'none';
+    document.getElementById('result-section').style.display = 'none'; // Ensure the result section is hidden
+}
 
-    // Helper function to hide the loading icon
-    function hideLoadingIcon() {
-        document.getElementById('loading-icon').style.display = 'none';
-    }
+// Helper function to hide the loading icon
+function hideLoadingIcon() {
+    document.getElementById('loading-icon').style.display = 'none';
 }
 
 // Function to display the item details
 function displayItemDetails(data) {
+    // Make sure result section is hidden when showing item details
+    document.getElementById('result-section').style.display = 'none';
+
+    document.getElementById('item-section').style.display = 'block';
     document.getElementById('item-name').textContent = toTitleCase(data.item_name);
     document.getElementById('item-image').src = `http://localhost:8000${data.garment_image_path}`;
     document.getElementById('item-image').style.display = 'block';
     document.getElementById('show-result-btn').style.display = 'block';
 
-    // Check if the result was already computed and stored
-    const lastResultImage = localStorage.getItem('lastResultImage');
-    if (lastResultImage) {
-        displayResultImage(lastResultImage, data.item_name);
-    }
+    // Reset hasViewedResult to avoid showing result section automatically
+    localStorage.removeItem('hasViewedResult');
+
+    // Save the last scraped URL and fetched data for future use
+    localStorage.setItem('lastScrapedUrl', window.location.href);
+    localStorage.setItem('lastFetchedData', JSON.stringify(data));
 }
 
 // Handle the show result button click to process the image
 document.getElementById('show-result-btn').addEventListener('click', async () => {
     const garmentImageUrl = document.getElementById('item-image').src;
     const itemName = document.getElementById('item-name').textContent;
+
+    document.getElementById('item-section').style.display = 'none';
+    document.getElementById('result-section').style.display = 'block';
+
+    showLoadingIcon();
 
     const response = await fetch(`http://localhost:8000/classify-item/`, {
         method: 'POST',
@@ -383,20 +393,13 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
     if (response.ok) {
         const classifyResult = await response.json();
         const category = classifyResult.category;
-
-        console.log('Classified category:', category);
+        // console.log('Classified category:', category);
 
         // Extract the correct relative path for the garment image
         const garmentImageRelativePath = garmentImageUrl.replace(`${window.location.origin}/garments-images/`, "garmentsImages/");
         const modelImageUrl = localStorage.getItem('modelImageUrl');
 
         if (modelImageUrl) { // Only proceed if modelImageUrl exists
-            console.log('Sending to API:', {
-                model_image_path: modelImageUrl,
-                garment_image_path: garmentImageRelativePath,
-                category: category
-            });
-
             const processResponse = await fetch(`http://localhost:8000/model-process-image/`, {
                 method: 'POST',
                 headers: {
@@ -408,32 +411,36 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
                     category: category
                 })
             });
-
+            if (processResponse === 'None') {
+                hideLoadingIcon();
+                showNothingToDisplay("Failed to process the image with the model, try again later.");
+            }
             if (processResponse.ok) {
                 const result = await processResponse.json();
+
+                hideLoadingIcon();
+
                 displayResultImage(`http://localhost:8000${result}`, itemName);
 
                 // Save the result image URL in localStorage
                 localStorage.setItem('lastResultImage', `http://localhost:8000${result}`);
+                // Now that the result is viewed, set hasViewedResult
+                localStorage.setItem('hasViewedResult', 'true');
             } else {
+                hideLoadingIcon();
+                showNothingToDisplay("Error processing image with the model, try again later.");
                 console.error('Error processing image');
             }
         } else {
+            hideLoadingIcon();
+            showNothingToDisplay("Error processing image");
             console.error('Model image URL not found. Skipping image processing.');
         }
     } else {
+        hideLoadingIcon();
         console.error('Error classifying item');
     }
 });
-
-// Function to convert item name to Title Case (not in all caps)
-function toTitleCase(itemName) {
-    return itemName
-        .toLowerCase() // Convert the entire string to lowercase
-        .split(' ') // Split the string by spaces into an array of words
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
-        .join(' '); // Join the words back into a single string
-}
 
 // Function to display the result image
 function displayResultImage(imageUrl, itemName) {
@@ -452,6 +459,8 @@ function displayResultImage(imageUrl, itemName) {
     `;
 
     document.getElementById('return-to-details-btn').addEventListener('click', () => {
+        localStorage.setItem('hasViewedResult', 'false');
+
         checkCurrentPageAndFetchDetails();
         showSection('item-section');
     });
@@ -459,6 +468,15 @@ function displayResultImage(imageUrl, itemName) {
     document.getElementById('download-result-photo-btn').addEventListener('click', () => {
         downloadImage(imageUrl);
     });
+}
+
+// Function to convert item name to Title Case (not in all caps)
+function toTitleCase(itemName) {
+    return itemName
+        .toLowerCase() // Convert the entire string to lowercase
+        .split(' ') // Split the string by spaces into an array of words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+        .join(' '); // Join the words back into a single string
 }
 
 // Helper function to download an image
@@ -470,10 +488,9 @@ function downloadImage(url) {
     link.click();
     document.body.removeChild(link);
 }
+
 // Additional HTML elements
 document.getElementById('result-section').innerHTML += `<div id="result-buttons"></div>`;
-
-
 
 // document.addEventListener('DOMContentLoaded', function () {
 //     const button = document.getElementById('trackButton');

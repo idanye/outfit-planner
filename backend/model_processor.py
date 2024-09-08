@@ -93,10 +93,7 @@ class ModelProcessor:
             return new_image_path
         except Exception as e:
             print(e)
-            if 'retry' in str(e):
-                return "Please try again later"
-            else:
-                return None
+            return 'None'
 
 
 # class ImageEvaluator:
