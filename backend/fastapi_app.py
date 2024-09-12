@@ -8,10 +8,6 @@ from model_processor import ModelProcessor
 from scrapers.scraper_factory import ScraperFactory
 from detection.person_detector import save_first_image_without_person
 from classification.clothes_classifier import ClothesClassifier
-# from azure.storage.blob import BlobServiceClient
-from uuid import uuid4
-import requests
-from pathlib import Path
 
 app = FastAPI()
 
@@ -53,37 +49,6 @@ class ProcessRequest(BaseModel):
     model_image_path: str
     garment_image_path: str
     category: str
-
-
-# @app.get("/test-message/")
-# def get_test_message():
-#     return {"message": "Test message: Image upload was successful!"}
-
-
-# @app.post("/download-model-image/")
-# async def download_model_image(request: DownloadModelImageRequest):
-#     try:
-#         print("Received request:", request)
-#
-#         image_url = request.image_url
-#
-#         # Generate a unique filename based on the URL
-#         file_extension = os.path.splitext(image_url)[1]
-#         unique_filename = f"{uuid4()}{file_extension}"
-#
-#         # Ensure the directory exists
-#         Path(model_directory).mkdir(parents=True, exist_ok=True)
-#         file_path = os.path.join(model_directory, unique_filename)
-#
-#         # Download the image from the URL
-#         response = requests.get(image_url)
-#         response.raise_for_status()  # Check for any HTTP errors
-#         with open(file_path, "wb") as image_file:
-#             image_file.write(response.content)
-#
-#         return {"message": f"Image downloaded successfully to {file_path}"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/upload-model-image/")

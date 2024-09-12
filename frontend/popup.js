@@ -110,24 +110,19 @@ window.addEventListener('load', function() {
     const savedSection = localStorage.getItem('currentSection');
     const userName = localStorage.getItem('userName');
     const userImage = localStorage.getItem('userImage');
-    // const hasViewedResult = localStorage.getItem('hasViewedResult');
 
     console.log('user name: ', userName);
     console.log('user image: ', userImage);
 
-    // Always check the current page and fetch details, even on load
-    checkCurrentPageAndFetchDetails();
-
     if (userName && userImage) {
+        // Always check the current page and fetch details, even on load
+        checkCurrentPageAndFetchDetails();
+
         showSection('input-section');
 
         document.getElementById('user-name').textContent = userName;
         document.getElementById('user-image').src = userImage;
         document.getElementById('user-info').style.display = 'flex';
-
-        // if (hasViewedResult === 'true') {
-        //     localStorage.removeItem('hasViewedResult');
-        // }
 
         if (savedSection === 'item-section') {
             showSection('item-section');
@@ -221,6 +216,14 @@ function showSection(sectionId) {
 
 // Function to check the current page and fetch item details
 function checkCurrentPageAndFetchDetails() {
+    // Check if the user is signed in (i.e., if userName exists in localStorage)
+    const userName = localStorage.getItem('userName');
+    if (!userName) {
+        console.log('User is not signed in. Not fetching details.');
+        showSection('signin-section');
+        return;
+    }
+
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         const currentUrl = tabs[0].url;
         console.log('Checking the current URL:', currentUrl);
@@ -228,6 +231,8 @@ function checkCurrentPageAndFetchDetails() {
         const lastScrapedUrl = localStorage.getItem('lastScrapedUrl');
         const lastFetchedData = localStorage.getItem('lastFetchedData');
         const lastResultImage = localStorage.getItem('lastResultImage');
+
+        console.log('Checking the last scraped URL:', lastScrapedUrl);
 
         // Only scrape if the URL hasn't been scraped last
         if (currentUrl === lastScrapedUrl && lastFetchedData) {
@@ -316,6 +321,8 @@ async function fetchItemDetails(currentUrl) {
                 // Display the item details and image
                 displayItemDetails(result);
 
+                console.log("SETTING lastScrapedUrl to:", currentUrl);
+
                 // Save the last scraped URL
                 localStorage.setItem('lastScrapedUrl', currentUrl);
                 localStorage.setItem('lastFetchedData', JSON.stringify(result));
@@ -345,7 +352,11 @@ function showLoadingIcon() {
     document.getElementById('item-name').textContent = "";
     document.getElementById('item-image').style.display = 'none';
     document.getElementById('show-result-btn').style.display = 'none';
-    document.getElementById('result-section').style.display = 'none'; // Ensure the result section is hidden
+    // document.getElementById('result-section').style.display = 'none'; // Ensure the result section is hidden
+
+    document.getElementById('result').style.display = 'none'; // Hide the result image
+    document.getElementById('result-item-name').style.display = 'none'; // Hide the result item name
+    document.getElementById('result-buttons').style.display = 'none'; // Hide the result buttons
 }
 
 // Helper function to hide the loading icon
@@ -355,6 +366,7 @@ function hideLoadingIcon() {
 
 // Function to display the item details
 function displayItemDetails(data) {
+    console.log("displayItemDetails started with:", data);
     // Make sure result section is hidden when showing item details
     document.getElementById('result-section').style.display = 'none';
 
@@ -364,11 +376,10 @@ function displayItemDetails(data) {
     document.getElementById('item-image').style.display = 'block';
     document.getElementById('show-result-btn').style.display = 'block';
 
+    console.log("hasViewedResult before:", localStorage.getItem('hasViewedResult'));
     // Reset hasViewedResult to avoid showing result section automatically
     localStorage.removeItem('hasViewedResult');
 
-    // Save the last scraped URL and fetched data for future use
-    localStorage.setItem('lastScrapedUrl', window.location.href);
     localStorage.setItem('lastFetchedData', JSON.stringify(data));
 }
 
@@ -376,9 +387,11 @@ function displayItemDetails(data) {
 document.getElementById('show-result-btn').addEventListener('click', async () => {
     const garmentImageUrl = document.getElementById('item-image').src;
     const itemName = document.getElementById('item-name').textContent;
+    console.log('show-result-btn clicked');
 
     document.getElementById('item-section').style.display = 'none';
     document.getElementById('result-section').style.display = 'block';
+    document.getElementById('result-section-title').style.display = 'block';
 
     showLoadingIcon();
 
@@ -393,7 +406,6 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
     if (response.ok) {
         const classifyResult = await response.json();
         const category = classifyResult.category;
-        // console.log('Classified category:', category);
 
         // Extract the correct relative path for the garment image
         const garmentImageRelativePath = garmentImageUrl.replace(`${window.location.origin}/garments-images/`, "garmentsImages/");
@@ -411,25 +423,31 @@ document.getElementById('show-result-btn').addEventListener('click', async () =>
                     category: category
                 })
             });
-            if (processResponse === 'None') {
-                hideLoadingIcon();
-                showNothingToDisplay("Failed to process the image with the model, try again later.");
-            }
-            if (processResponse.ok) {
-                const result = await processResponse.json();
-
-                hideLoadingIcon();
-
-                displayResultImage(`http://localhost:8000${result}`, itemName);
-
-                // Save the result image URL in localStorage
-                localStorage.setItem('lastResultImage', `http://localhost:8000${result}`);
-                // Now that the result is viewed, set hasViewedResult
-                localStorage.setItem('hasViewedResult', 'true');
-            } else {
+            if (!processResponse.ok) {
                 hideLoadingIcon();
                 showNothingToDisplay("Error processing image with the model, try again later.");
                 console.error('Error processing image');
+                return;
+            }
+
+            const result = await processResponse.json();
+            if (result === 'None') {
+                hideLoadingIcon();
+                showNothingToDisplay("Failed to process the image with the model, try again later.");
+                return;
+            }
+            if (processResponse.ok) {
+                const imageUrl = `http://localhost:8000${result}`;
+
+                hideLoadingIcon();
+                displayResultImage(imageUrl, itemName);
+
+                // Save the result image URL in localStorage
+                localStorage.setItem('lastResultImage', imageUrl);
+
+                console.log("hasViewedResult after:", localStorage.getItem('hasViewedResult'));
+                // Now that the result is viewed, set hasViewedResult
+                localStorage.setItem('hasViewedResult', 'true');
             }
         } else {
             hideLoadingIcon();
@@ -449,6 +467,8 @@ function displayResultImage(imageUrl, itemName) {
     document.getElementById('result').innerHTML = `<img src="${imageUrl}" alt="Model Result Image" />`;
     document.getElementById('result').style.display = `flex`;
     document.getElementById('result-item-name').textContent = formattedItemName;
+    document.getElementById('result-item-name').style.display = 'block'; // Hide the result item name
+    document.getElementById('result-buttons').style.display = 'block'; // Hide the result buttons
 
     showSection('result-section');
     localStorage.setItem('hasViewedResult', 'true');
