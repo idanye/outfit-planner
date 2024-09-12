@@ -85,11 +85,6 @@ function signOut() {
                                 // Reset UI and Update UI to display sign-in section
                                 showSection('signin-section');
                                 document.getElementById('user-info').style.display = 'none';
-                                // document.getElementById('user-info').style.display = 'none';
-                                // document.getElementById('input-section').style.display = 'none';
-                                // document.getElementById('item-section').style.display = 'none';
-                                // document.getElementById('result-section').style.display = 'none';
-                                //document.getElementById('signin-section').style.display = 'block'; // Show sign-in section
                             });
                         });
                     })
@@ -110,11 +105,12 @@ window.addEventListener('load', function() {
     const savedSection = localStorage.getItem('currentSection');
     const userName = localStorage.getItem('userName');
     const userImage = localStorage.getItem('userImage');
+    const modelImageUrl = localStorage.getItem('modelImageUrl');  // Check if model image is uploaded
 
     console.log('user name: ', userName);
     console.log('user image: ', userImage);
 
-    if (userName && userImage) {
+    if (userName && userImage && modelImageUrl) {
         // Always check the current page and fetch details, even on load
         checkCurrentPageAndFetchDetails();
 
@@ -143,7 +139,6 @@ window.addEventListener('load', function() {
         } else {
             console.log('item-image element exist');
         }
-
     } else {
         // If not signed in, show the sign-in section
         showSection('signin-section');
@@ -218,9 +213,17 @@ function showSection(sectionId) {
 function checkCurrentPageAndFetchDetails() {
     // Check if the user is signed in (i.e., if userName exists in localStorage)
     const userName = localStorage.getItem('userName');
+    const modelImageUrl = localStorage.getItem('modelImageUrl');  // Get the model image URL from local storage
+
     if (!userName) {
         console.log('User is not signed in. Not fetching details.');
         showSection('signin-section');
+        return;
+    }
+
+    if (!modelImageUrl) {
+        console.log('No model image uploaded. Not fetching details.');
+        // showNothingToDisplay("Please upload a model image first.");
         return;
     }
 
@@ -238,7 +241,6 @@ function checkCurrentPageAndFetchDetails() {
         if (currentUrl === lastScrapedUrl && lastFetchedData) {
             console.log('URL was already the last scraped, skipping scraping.');
             // If the URL is the same, and we have fetched data, display it
-            // displayItemDetails(JSON.parse(lastFetchedData));
             console.log('Using cached data for URL:', currentUrl);
 
             const data = JSON.parse(lastFetchedData);
@@ -278,7 +280,6 @@ async function fetchItemDetails(currentUrl) {
 
     // 2. Extract the pathname and check if it contains "/p" followed by digits (product ID)
     const productPathRegex = /-p\d{8}\.html$/;
-    // if (!productPathRegex.test(pathName)) {
     if (!domainRegex.test(currentUrl) || !productPathRegex.test(urlObject.pathname)) {
         console.log('Url does not contain product path');
         hideLoadingIcon();
@@ -352,7 +353,6 @@ function showLoadingIcon() {
     document.getElementById('item-name').textContent = "";
     document.getElementById('item-image').style.display = 'none';
     document.getElementById('show-result-btn').style.display = 'none';
-    // document.getElementById('result-section').style.display = 'none'; // Ensure the result section is hidden
 
     document.getElementById('result').style.display = 'none'; // Hide the result image
     document.getElementById('result-item-name').style.display = 'none'; // Hide the result item name
@@ -475,7 +475,7 @@ function displayResultImage(imageUrl, itemName) {
 
     document.getElementById('result-buttons').innerHTML = `
         <button id="return-to-details-btn">Return to Get Item Details</button>
-        <button id="download-result-photo-btn">Download Result Photo</button>
+        <button id="download-result-photo-btn">Download Result Image</button>
     `;
 
     document.getElementById('return-to-details-btn').addEventListener('click', () => {
@@ -511,22 +511,5 @@ function downloadImage(url) {
 
 // Additional HTML elements
 document.getElementById('result-section').innerHTML += `<div id="result-buttons"></div>`;
-
-// document.addEventListener('DOMContentLoaded', function () {
-//     const button = document.getElementById('trackButton');
-
-//     // Ensure analytics.js is loaded and sendAnalyticsEvent is defined
-//     if (typeof sendAnalyticsEvent === 'function') {
-//         console.log('Analytics script loaded successfully.');
-
-//         // Example: Send an analytics event when a button is clicked
-//         button.addEventListener('click', function () {
-//             sendAnalyticsEvent();  // Call the analytics function when button is clicked
-//         });
-//     } else {
-//         console.error('Analytics script not loaded or function not defined.');
-//     }
-// });
-
 
 // run by git bash terminal : ./start.sh to run the server
