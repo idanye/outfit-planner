@@ -31,52 +31,8 @@ async function getOrCreateSessionId() {
   
     return sessionId;
   }
-  
 
-// const GA_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
-// const MEASUREMENT_ID = os.getenv('MEASUREMENT_ID');
-// const API_SECRET = os.getenv('API_SECRET');
-
-// async function sendAnalyticsEvent() {
-//     // Generate or retrieve a unique client ID for the user
-//     const clientId = await getOrCreateClientId();
-  
-//     // Generate or retrieve a session ID for the user session
-//     const sessionId = await getOrCreateSessionId(); // Implement this function to create or retrieve a session ID
-  
-//     // Define engagement time in milliseconds
-//     const engagementTimeMsec = 1000; // Example: 1000ms (1 second); adjust based on actual engagement
-  
-//     // Send the event to Google Analytics
-//     fetch(
-//       `${GA_ENDPOINT}?measurement_id=${MEASUREMENT_ID}&api_secret=${API_SECRET}`,
-//       {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({
-//           client_id: clientId,
-//           events: [
-//             {
-//               name: 'button_clicked',
-//               params: {
-//                 id: 'my-button',
-//                 session_id: sessionId,
-//                 engagement_time_msec: engagementTimeMsec,
-//               },
-//             },
-//           ],
-//         }),
-//       }
-//     ).then(response => response.json())
-//       .then(data => console.log('Event sent:', data))
-//       .catch(error => console.error('Error sending event:', error));
-//   }
-  
-  
-  // // Call the function to send an event
-  // sendAnalyticsEvent();
-
-async function sendAnalyticsEvent() {
+async function sendAnalyticsEvent(eventName, buttonId) {
     const clientId = await getOrCreateClientId();
     const sessionId = await getOrCreateSessionId();
     const engagementTimeMsec = 1000; // Example: 1000ms (1 second); adjust as needed
@@ -90,12 +46,18 @@ async function sendAnalyticsEvent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             client_id: clientId,
-            event_name: 'button_clicked',
+            event_name: eventName,
             event_params: {
-                id: 'my-button',
+                id: buttonId,
                 session_id: sessionId,
                 engagement_time_msec: engagementTimeMsec,
             }
+            // event_name: 'button_clicked',
+            // event_params: {
+            //     id: 'my-button',
+            //     session_id: sessionId,
+            //     engagement_time_msec: engagementTimeMsec,
+            // }
         }),
     })
     .then(response => response.json())
@@ -109,3 +71,5 @@ sendAnalyticsEvent();
 
 
 
+
+// C:\Users\Nofar\year4SemB\FromIdeaToApp\outfit-planner\outfit-planner\backend\scrapers\scraped_images\zara1.jpg
