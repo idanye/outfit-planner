@@ -1,6 +1,7 @@
 async function getOrCreateClientId() {
     const result = await chrome.storage.local.get('clientId');
     let clientId = result.clientId;
+
     if (!clientId) {
         // Generate a unique client ID, the actual value is not relevant
         clientId = self.crypto.randomUUID();
@@ -10,8 +11,9 @@ async function getOrCreateClientId() {
     } else {
         console.log('Existing Client ID:', result.client_id);
     }
+
     return clientId;
-    }
+}
 
 // Function to create or retrieve a session ID (for demonstration purposes)
 async function getOrCreateSessionId() {
@@ -30,16 +32,14 @@ async function getOrCreateSessionId() {
     }
   
     return sessionId;
-  }
+}
 
 async function sendAnalyticsEvent(eventName, buttonId) {
     const clientId = await getOrCreateClientId();
     const sessionId = await getOrCreateSessionId();
     const engagementTimeMsec = 1000; // Example: 1000ms (1 second); adjust as needed
 
-    // Send the event to your backend API instead of directly to Google Analytics
-    // fetch('http://127.0.0.1:8000/send-analytics', {
-      console.log("Sending analytics event...");
+    console.log("Sending analytics event...");
       
     fetch('http://localhost:3000/send-analytics', {
         method: 'POST',
@@ -52,12 +52,6 @@ async function sendAnalyticsEvent(eventName, buttonId) {
                 session_id: sessionId,
                 engagement_time_msec: engagementTimeMsec,
             }
-            // event_name: 'button_clicked',
-            // event_params: {
-            //     id: 'my-button',
-            //     session_id: sessionId,
-            //     engagement_time_msec: engagementTimeMsec,
-            // }
         }),
     })
     .then(response => response.json())
@@ -67,9 +61,3 @@ async function sendAnalyticsEvent(eventName, buttonId) {
 
 // Call the function to send an event
 sendAnalyticsEvent();
-
-
-
-
-
-// C:\Users\Nofar\year4SemB\FromIdeaToApp\outfit-planner\outfit-planner\backend\scrapers\scraped_images\zara1.jpg
