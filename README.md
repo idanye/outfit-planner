@@ -2,6 +2,8 @@
 
 This project is a Chrome extension that models the requested clothing items on the user to help improve the online buying experience on the Zara site.
 
+By: Nofar Nahum and Idan Yehiel.
+
 ## Libraries & Technologies
 - YOLO
 - Selenium
@@ -60,5 +62,25 @@ Ensure the manifest.json file includes the necessary permissions and OAuth2 conf
   },
 ```
 
-## The product 
+## The Product 
+1. Open the Zara site and pick an item to try:
+<img src="README/1.png" alt="Alt Text" width="840" height="415"/>
+
+2. Sign in with google:
+<img src="README/2.png" alt="Alt Text" width="840" height="415"/>
+
+3. Upload a full-body image of yourself:
+<img src="README/3.png" alt="Alt Text" width="840" height="415"/>
+
+4. Wait
+<img src="README/4.png" alt="Alt Text" width="840" height="415"/>
+
+5. Showing the item details, click to try on:
+<img src="README/5.png" alt="Alt Text" width="840" height="415"/>
+
+6. Click for download the result or try again:
+<img src="README/7.png" alt="Alt Text" width="840" height="415"/>
+
+
+
 
