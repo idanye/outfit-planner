@@ -1,4 +1,3 @@
-
 // Function to handle Google sign-in using Chrome Identity API
 function signInWithGoogle() {
     chrome.identity.getAuthToken({ interactive: true }, function(token) {
@@ -32,12 +31,6 @@ function signInWithGoogle() {
 
             // Hide sign-in section
             document.getElementById('signin-section').style.display = 'none';
-            
-            // Check if model image exists in localStorage
-            const modelImageUrl = localStorage.getItem('modelImageUrl');
-            // if (modelImageUrl) {
-            //     fetchItemDetails(); // Only fetch details if model image exists
-            // }
         })
         .catch(error => console.error("Error fetching user info: ", error));
     });
@@ -113,7 +106,6 @@ window.addEventListener('load', function() {
     if (userName && userImage && modelImageUrl) {
         // Always check the current page and fetch details, even on load
         checkCurrentPageAndFetchDetails();
-
         showSection('input-section');
 
         document.getElementById('user-name').textContent = userName;
@@ -223,7 +215,6 @@ function checkCurrentPageAndFetchDetails() {
 
     if (!modelImageUrl) {
         console.log('No model image uploaded. Not fetching details.');
-        // showNothingToDisplay("Please upload a model image first.");
         return;
     }
 
@@ -289,10 +280,9 @@ async function fetchItemDetails(currentUrl) {
 
     // 3. Check if the query parameters contain v1 and v2 with numeric values
     const v1 = urlObject.searchParams.get("v1");
-    const v2 = urlObject.searchParams.get("v2");
 
-    if (!v1 || !v2 || isNaN(v1) || isNaN(v2)) {
-        console.log('URL does not contain valid v1 and v2 parameters');
+    if (!v1 || isNaN(v1)) {
+        console.log('URL does not contain valid v1 parameters');
         hideLoadingIcon();
         showNothingToDisplay("Nothing to display");
         return;
@@ -340,7 +330,7 @@ async function fetchItemDetails(currentUrl) {
 
 // Helper function to show "Nothing to display" message
 function showNothingToDisplay(message) {
-    document.getElementById('item-name').textContent = `${message}`;// `"Nothing to display"
+    document.getElementById('item-name').textContent = `${message}`;
     document.getElementById('item-section').style.display = 'block';
     document.getElementById('result-section').style.display = 'none';
     document.getElementById('item-image').style.display = 'none';
@@ -379,7 +369,6 @@ function displayItemDetails(data) {
     console.log("hasViewedResult before:", localStorage.getItem('hasViewedResult'));
     // Reset hasViewedResult to avoid showing result section automatically
     localStorage.removeItem('hasViewedResult');
-
     localStorage.setItem('lastFetchedData', JSON.stringify(data));
 }
 
@@ -480,7 +469,6 @@ function displayResultImage(imageUrl, itemName) {
 
     document.getElementById('return-to-details-btn').addEventListener('click', () => {
         localStorage.setItem('hasViewedResult', 'false');
-
         checkCurrentPageAndFetchDetails();
         showSection('item-section');
     });
@@ -511,5 +499,3 @@ function downloadImage(url) {
 
 // Additional HTML elements
 document.getElementById('result-section').innerHTML += `<div id="result-buttons"></div>`;
-
-// run by git bash terminal : ./start.sh to run the server

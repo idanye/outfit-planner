@@ -81,9 +81,7 @@ def get_scraped_images(request: ScrapeRequest):
 
     # Call the scraper function and ensure it returns an absolute path
     relative_saved_directory, item_name = scraper.scrape_images(request.url, base_directory)
-    # print(f"Relative saved directory: {relative_saved_directory}")  # Debugging line
     saved_directory = os.path.join(base_directory, relative_saved_directory)  # Ensure full path
-    # print(f"Saved directory path before processing: {saved_directory}")  # Debugging line
 
     garment_image_path = save_first_image_without_person(saved_directory, save_directory)
 
@@ -147,10 +145,8 @@ def get_processed_image(request: ProcessRequest):
     except Exception as e:
         print(f"get_processed_image function error: {str(e)}")
         return "None"
-        # raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run("fastapi_app:app", host="0.0.0.0", port=443, reload=True)

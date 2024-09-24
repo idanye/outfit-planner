@@ -18,7 +18,3 @@ echo "Current directory: $(pwd)"
 python backend/run_backend.py &
 echo "Additional backend script is running."
 echo " "
-
-
-## Open the HTML file in the default browser
-#python open_html.py

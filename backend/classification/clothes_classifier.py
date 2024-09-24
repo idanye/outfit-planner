@@ -16,11 +16,3 @@ class ClothesClassifier:
             return 'Dress'
         else:
             return 'Unknown'
-
-
-if __name__ == '__main__':
-    # Example usage
-    item_name = "COTTON AND MODAL CROP TOP"
-    ClothesClassifier = ClothesClassifier()
-    category = ClothesClassifier.classify_item(item_name)
-    print(f"Item '{item_name}' is classified as: {category}")

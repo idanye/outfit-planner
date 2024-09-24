@@ -1,12 +1,9 @@
 import os
 import re
-from datetime import datetime
-
-from selenium.webdriver.firefox.options import Options
-
-from .base_scraper import BaseScraper
-
 import requests
+from datetime import datetime
+from selenium.webdriver.firefox.options import Options
+from .base_scraper import BaseScraper
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -115,25 +112,13 @@ class ZaraScraper(BaseScraper):
     def download_image(self, url, save_path):
         try:
             response = requests.get(url, stream=True)
-            # print(f"Attempting to download image from {url}")
-            # print(f"Response status code: {response.status_code}")
 
             if response.status_code == 200:
                 with open(save_path, 'wb') as file:
                     for chunk in response.iter_content(8192):
                         file.write(chunk)
                 print("Downloaded image successfully")
-                # print(f"Successfully downloaded image from {url} to {save_path}")
             else:
                 print(f"Failed to download image from {url}")
         except Exception as e:
             print(f"Exception occurred while downloading image from {url}: {e}")
-
-
-# Example usage
-if __name__ == "__main__":
-    scraper = ZaraScraper()
-    zara_url = 'https://www.zara.com/il/en/short-trench-dress-with-tie-p03152376.html?v1=367598273'
-    base_directory = './scraped_images'
-    saved_directory = scraper.scrape_images(zara_url, base_directory)
-    print(f"Saved directory: {saved_directory}")

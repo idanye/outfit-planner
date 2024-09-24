@@ -1,6 +1,5 @@
 import shutil
 from datetime import datetime
-
 import cv2
 import numpy as np
 import os
@@ -72,6 +71,7 @@ class PersonDetector:
 
 def find_first_image_without_person(directory):
     detector = PersonDetector()
+
     for i in range(0, 12):  # Assuming there won't be more than 12 images
         image_path = os.path.join(directory, f'image_{i}.jpg')
         print(f"Checking image path: {image_path}")
@@ -105,18 +105,3 @@ def save_first_image_without_person(directory, save_directory="../garmentsImages
     else:
         print("No image without a person was found.")
         return None
-
-
-# Example usage
-if __name__ == "__main__":
-    # # nofar's path:
-    # script_dir = os.path.dirname(os.path.abspath(__file__))
-    # # Navigate up one directory from 'detection' to 'backend'
-    # backend_dir = os.path.dirname(script_dir)
-    # directory = os.path.join(backend_dir, "scrapers", "scraped_images", "iloveimg-resized")
-    # print(f"Absolute directory path: {directory}")
-
-    directory = "../scrapers/scraped_images/zara_images_2024_08_24-21_16"
-    image_path = save_first_image_without_person(directory)
-    # print(f"The new location of the image: {image_path}")
-    # print(os.chdir('/absolute/path/to/backend'))

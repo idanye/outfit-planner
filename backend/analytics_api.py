@@ -53,10 +53,4 @@ async def send_analytics(request: Request):
 
 if __name__ == '__main__':
     import uvicorn
-    # uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug")  # Replace `debug=True` with `log_level="info"` in production
-    uvicorn.run(app, host="0.0.0.0", port=3000, reload=True, log_level="debug") 
-
-
-#  Run the backend server like this for analytics_api.py to work:
-# cd backend
-# uvicorn analytics_api:app --host 0.0.0.0 --port 8000 --reload
+    uvicorn.run(app, host="0.0.0.0", port=3000, reload=True, log_level="debug")
