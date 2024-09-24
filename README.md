@@ -1,6 +1,6 @@
 # Outfit Planner Chrome Extension - Try before you buy!
 
-This project is a Chrome extension that models the requested clothing items on the user to help improve the online buying experience on the Zara site.
+A Chrome extension that models the requested clothing items on the user to help improve the online buying experience on the Zara site.
 
 By: Nofar Nahum and Idan Yehiel.
 
