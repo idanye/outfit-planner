@@ -22,6 +22,8 @@ By: Nofar Nahum and Idan Yehiel.
 - Saving the user’s image for a certain amount of time in the history of the extension for trying other items with Google SignIn and Cache.
 
 ## Prerequisites
+  python 3.7 - 3.11.
+  
   Look at requirements.txt
 
 ## Setup
